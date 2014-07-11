@@ -34,7 +34,8 @@
             android:gravity="center_horizontal|top"
             android:padding="5dp"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textIsSelectable="true" />
+            android:textIsSelectable="true"
+            android:visibility="visible" />
 
         <LinearLayout
             android:id="@+id/alp_42447968_viewgroup_footer"
@@ -43,7 +44,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:orientation="vertical"
-            android:visibility="gone" >
+            android:visibility="gone"
+            android:clickable="false">
 
             <!-- A separator view -->
 

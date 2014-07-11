@@ -93,24 +93,29 @@ import static com.haibison.android.lockpattern.util.Settings.Security.METADATA_E
  */
 public class LockPatternFragment extends Fragment {
 
+    private String selectedAction;
+
+    public static LockPatternFragment newInstance(String method){
+        LockPatternFragment fragment = new LockPatternFragment();
+        Bundle args = new Bundle();
+        args.putString("ACTION", method);
+        fragment.setArguments(args);
+
+        return fragment;
+    }
+
+    public String getSelectedMethod () {
+        return getArguments().getString("ACTION");
+    }
+
+
+
+
+
+
     private static final String CLASSNAME = LockPatternFragment.class.getName();
 
-    /**
-     * Use getActivity() action to create new pattern. You can provide an
-     * {@link com.haibison.android.lockpattern.util.IEncrypter} with
-     * {@link com.haibison.android.lockpattern.util.Settings.Security#setEncrypterClass(android.content.Context, Class)} to
-     * improve security.
-     * <p/>
-     * If the user created a pattern, {@link android.app.Activity#RESULT_OK} returns with
-     * the pattern ({@link #EXTRA_PATTERN}). Otherwise
-     * {@link android.app.Activity#RESULT_CANCELED} returns.
-     *
-     * @see #EXTRA_PENDING_INTENT_OK
-     * @see #EXTRA_PENDING_INTENT_CANCELLED
-     * @since v2.4 beta
-     */
-    public static final String ACTION_CREATE_PATTERN = CLASSNAME
-            + ".create_pattern";
+    public static final String ACTION_CREATE_PATTERN = "create";
 
     /**
      * Use getActivity() action to compare pattern. You provide the pattern to be
@@ -312,31 +317,7 @@ public class LockPatternFragment extends Fragment {
     private RelativeLayout rl;
     private FragmentActivity fa;
 
-//    /**
-//     * Called when the activity is first created.
-//     */
-//    @Override
-//    public void onCreate(Bundle savedInstanceState) {
-//        if (BuildConfig.DEBUG)
-//            Log.d(CLASSNAME, "ClassName = " + CLASSNAME);
 //
-//        /*
-//         * EXTRA_THEME
-//         */
-//
-//        if (fa.getIntent().hasExtra(EXTRA_THEME))
-//            setTheme(fa.getIntent().getIntExtra(EXTRA_THEME,
-//                    R.style.Alp_42447968_Theme_Dark));
-//
-//        super.onCreate(savedInstanceState);
-//
-//        loadSettings();
-//
-//        mIntentResult = new Intent();
-//        setResult(fa.RESULT_CANCELED, mIntentResult);
-//
-//        initContentView();
-//    }// onCreate()
 
     /**
      * Called when the activity is first created.
@@ -345,6 +326,11 @@ public class LockPatternFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (BuildConfig.DEBUG)
             Log.d(CLASSNAME, "ClassName = " + CLASSNAME);
+
+        //Put the information about selected action into private String
+        if(getSelectedMethod() != null)
+            selectedAction = getArguments().getString("method");
+
 
         fa = getActivity();
         /*
@@ -357,14 +343,14 @@ public class LockPatternFragment extends Fragment {
 
 //        super.onCreate(savedInstanceState);
 
-        final View view = inflater.inflate(R.layout.alp_42447968_lock_pattern_activity, container, false);
+         View view = inflater.inflate(R.layout.alp_42447968_lock_pattern_activity, container, false);
 //        rl = (RelativeLayout) inflater.inflate(R.layout.alp_42447968_lock_pattern_fragment, container, false);
         loadSettings();
 
         mIntentResult = new Intent();
         fa.setResult(fa.RESULT_CANCELED, mIntentResult);
+        initContentView(view);
 
-        initContentView();
         return view;
     }// onCreate()
 
@@ -373,7 +359,8 @@ public class LockPatternFragment extends Fragment {
         if (BuildConfig.DEBUG)
             Log.d(CLASSNAME, "onConfigurationChanged()");
         super.onConfigurationChanged(newConfig);
-        initContentView();
+
+        //initContentView(view);
     }// onConfigurationChanged()
 
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -487,7 +474,7 @@ public class LockPatternFragment extends Fragment {
     /**
      * Initializes UI...
      */
-    private void initContentView() {
+    private void initContentView(View view) {
         /*
          * Save all controls' state to restore later.
          */
@@ -499,15 +486,15 @@ public class LockPatternFragment extends Fragment {
         List<Cell> lastPattern = mLockPatternView != null ? mLockPatternView
                 .getPattern() : null;
 
-        fa.setContentView(R.layout.alp_42447968_lock_pattern_activity);
+        //fa.setContentView(R.layout.alp_42447968_lock_pattern_activity);
         UI.adjustDialogSizeForLargeScreens(fa.getWindow());
 
-        mTextInfo = (TextView) getView().findViewById(R.id.alp_42447968_textview_info);
-        mLockPatternView = (LockPatternView) getView().findViewById(R.id.alp_42447968_view_lock_pattern);
+        mTextInfo = (TextView) view.findViewById(R.id.alp_42447968_textview_info);
+        mLockPatternView = (LockPatternView) view.findViewById(R.id.alp_42447968_view_lock_pattern);
 
-        mFooter = getView().findViewById(R.id.alp_42447968_viewgroup_footer);
-        mBtnCancel = (Button) getView().findViewById(R.id.alp_42447968_button_cancel);
-        mBtnConfirm = (Button) getView().findViewById(R.id.alp_42447968_button_confirm);
+        mFooter = view.findViewById(R.id.alp_42447968_viewgroup_footer);
+        mBtnCancel = (Button) view.findViewById(R.id.alp_42447968_button_cancel);
+        mBtnConfirm = (Button) view.findViewById(R.id.alp_42447968_button_confirm);
 
         /*
          * LOCK PATTERN VIEW
@@ -550,18 +537,18 @@ public class LockPatternFragment extends Fragment {
         if (lastPattern != null && lastDisplayMode != null
                 && !ACTION_VERIFY_CAPTCHA.equals(fa.getIntent().getAction()))
             mLockPatternView.setPattern(lastDisplayMode, lastPattern);
-
+        Log.e("HAAAAAAAAAAAAALO", getSelectedMethod());
         /*
          * COMMAND BUTTONS
          */
 
-        if (ACTION_CREATE_PATTERN.equals(fa.getIntent().getAction())) {
+        if (ACTION_CREATE_PATTERN.equals(getSelectedMethod())) {
             mBtnCancel.setOnClickListener(mBtnCancelOnClickListener);
             mBtnConfirm.setOnClickListener(mBtnConfirmOnClickListener);
 
             mBtnCancel.setVisibility(View.VISIBLE);
             mFooter.setVisibility(View.VISIBLE);
-
+            mTextInfo.setVisibility(View.VISIBLE);
             if (infoText != null)
                 mTextInfo.setText(infoText);
             else
@@ -581,9 +568,7 @@ public class LockPatternFragment extends Fragment {
                     mBtnConfirm.setText(R.string.alp_42447968_cmd_confirm);
                     break;
                 default:
-                /*
-                 * Do nothing.
-                 */
+
                     break;
             }
             if (btnOkEnabled != null)
@@ -785,7 +770,7 @@ public class LockPatternFragment extends Fragment {
      *            cases, it can be set to {@code null}.
      */
     private void finishWithResultOk(char[] pattern) {
-        if (ACTION_CREATE_PATTERN.equals(fa.getIntent().getAction()))
+        if (ACTION_CREATE_PATTERN.equals(getSelectedMethod()))
             mIntentResult.putExtra(EXTRA_PATTERN, pattern);
         else {
             /*
@@ -803,7 +788,7 @@ public class LockPatternFragment extends Fragment {
                 EXTRA_RESULT_RECEIVER);
         if (receiver != null) {
             Bundle bundle = new Bundle();
-            if (ACTION_CREATE_PATTERN.equals(fa.getIntent().getAction()))
+            if (ACTION_CREATE_PATTERN.equals(getSelectedMethod()))
                 bundle.putCharArray(EXTRA_PATTERN, pattern);
             else {
                 /*
@@ -883,18 +868,18 @@ public class LockPatternFragment extends Fragment {
             mLockPatternView.removeCallbacks(mLockPatternViewReloader);
             mLockPatternView.setDisplayMode(DisplayMode.Correct);
 
-            if (ACTION_CREATE_PATTERN.equals(fa.getIntent().getAction())) {
+            if (ACTION_CREATE_PATTERN.equals(getSelectedMethod())) {
                 mTextInfo
                         .setText(R.string.alp_42447968_msg_release_finger_when_done);
                 mBtnConfirm.setEnabled(false);
                 if (mBtnOkCmd == ButtonOkCommand.CONTINUE)
                     fa.getIntent().removeExtra(EXTRA_PATTERN);
             }// ACTION_CREATE_PATTERN
-            else if (ACTION_COMPARE_PATTERN.equals(fa.getIntent().getAction())) {
+            else if (ACTION_COMPARE_PATTERN.equals(getSelectedMethod())) {
                 mTextInfo
                         .setText(R.string.alp_42447968_msg_draw_pattern_to_unlock);
             }// ACTION_COMPARE_PATTERN
-            else if (ACTION_VERIFY_CAPTCHA.equals(fa.getIntent().getAction())) {
+            else if (ACTION_VERIFY_CAPTCHA.equals(getSelectedMethod())) {
                 mTextInfo
                         .setText(R.string.alp_42447968_msg_redraw_pattern_to_confirm);
             }// ACTION_VERIFY_CAPTCHA
@@ -902,13 +887,13 @@ public class LockPatternFragment extends Fragment {
 
         @Override
         public void onPatternDetected(List<Cell> pattern) {
-            if (ACTION_CREATE_PATTERN.equals(fa.getIntent().getAction())) {
+            if (ACTION_CREATE_PATTERN.equals(getSelectedMethod())) {
                 doCheckAndCreatePattern(pattern);
             }// ACTION_CREATE_PATTERN
-            else if (ACTION_COMPARE_PATTERN.equals(fa.getIntent().getAction())) {
+            else if (ACTION_COMPARE_PATTERN.equals(getSelectedMethod())) {
                 doComparePattern(pattern);
             }// ACTION_COMPARE_PATTERN
-            else if (ACTION_VERIFY_CAPTCHA.equals(fa.getIntent().getAction())) {
+            else if (ACTION_VERIFY_CAPTCHA.equals(getSelectedMethod())) {
                 if (!DisplayMode.Animate.equals(mLockPatternView
                         .getDisplayMode()))
                     doComparePattern(pattern);
@@ -919,7 +904,7 @@ public class LockPatternFragment extends Fragment {
         public void onPatternCleared() {
             mLockPatternView.removeCallbacks(mLockPatternViewReloader);
 
-            if (ACTION_CREATE_PATTERN.equals(fa.getIntent().getAction())) {
+            if (ACTION_CREATE_PATTERN.equals(getSelectedMethod())) {
                 mLockPatternView.setDisplayMode(DisplayMode.Correct);
                 mBtnConfirm.setEnabled(false);
                 if (mBtnOkCmd == ButtonOkCommand.CONTINUE) {
@@ -962,7 +947,7 @@ public class LockPatternFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            if (ACTION_CREATE_PATTERN.equals(fa.getIntent().getAction())) {
+            if (ACTION_CREATE_PATTERN.equals(getSelectedMethod())) {
                 if (mBtnOkCmd == ButtonOkCommand.CONTINUE) {
                     mBtnOkCmd = ButtonOkCommand.DONE;
                     mLockPatternView.clearPattern();

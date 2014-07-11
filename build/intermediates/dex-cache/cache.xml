@@ -2,14 +2,14 @@
 <pre-dex-items>
 
     <item
-        dex="/Users/pSontag/Projects/git/android-lockpattern/openKeychain/build/intermediates/pre-dexed/debug/classes-7c2abf0ce119c0ee66df0e6a0df278b740d31af2.jar"
-        jar="/Users/pSontag/Projects/git/android-lockpattern/build/intermediates/exploded-aar/com.android.support/appcompat-v7/19.1.0/classes.jar"
+        dex="D:\Niklas\Java\android-lockpattern\openKeychain\build\intermediates\pre-dexed\debug\classes-70b13d53d1021d8e0b61bdba96c966db59f75b1f.jar"
+        jar="D:\Niklas\Java\android-lockpattern\build\intermediates\exploded-aar\com.android.support\appcompat-v7\19.1.0\classes.jar"
         jumboMode="false"
         revision="19.1.0"
         sha1="3499ceba05ca1f6037c6a2fad73df8f636224a28"/>
     <item
-        dex="/Users/pSontag/Projects/git/android-lockpattern/openKeychain/build/intermediates/pre-dexed/debug/support-v4-19.1.0-fe930dc68beb1e566675ce71b270d4091c6c249b.jar"
-        jar="/Applications/Android Studio.app/sdk/extras/android/m2repository/com/android/support/support-v4/19.1.0/support-v4-19.1.0.jar"
+        dex="D:\Niklas\Java\android-lockpattern\openKeychain\build\intermediates\pre-dexed\debug\support-v4-19.1.0-d2146d155ac21bdd941d7c3ffc82df1ce49fb662.jar"
+        jar="C:\Users\Niklas\AppData\Local\Android\android-studio\sdk\extras\android\m2repository\com\android\support\support-v4\19.1.0\support-v4-19.1.0.jar"
         jumboMode="false"
         revision="19.1.0"
         sha1="85f201b380937e61a9dce6ca90ccf6872abbfb67"/>

@@ -1,12 +1,16 @@
 package com.haibison.android.lockpattern;
 
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends Activity {
+
+    public static final String CREATE_METHOD = "create";
+    public static final String AUTHENTICATION = "authenticate";
 
 
     @Override
@@ -16,8 +20,15 @@ public class MainActivity extends FragmentActivity {
     }
 
 
-    public void selectMethod(View view){
-        startActivity(new Intent(this, WizardActivity.class));
+    public void createMethod(View view){
+        Intent i = new Intent(this, WizardActivity.class);
+        i.putExtra("ACTION", CREATE_METHOD );
+        startActivity(i);
     }
 
+    public void authenticate(View view) {
+        Intent i = new Intent(this, WizardActivity.class);
+        i.putExtra("ACTION", AUTHENTICATION );
+        startActivity(i);
+    }
 }

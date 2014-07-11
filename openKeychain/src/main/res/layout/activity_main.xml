@@ -6,15 +6,16 @@
     android:orientation="vertical">
 
     <Button
-        android:id="@+id/setMethod"
+        android:id="@+id/createMethod"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="set method"
-        android:onClick="selectMethod"/>
+        android:text="Neue Methode"
+        android:onClick="createMethod"/>
 
     <Button
-        android:id="@+id/enterMethod"
+        android:id="@+id/authenticate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="enter method"/>
+        android:text="Authentifizierung"
+        android:onClick="authenticate"/>
 </LinearLayout>

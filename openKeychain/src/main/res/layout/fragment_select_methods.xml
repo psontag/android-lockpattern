@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:text="Lockpattern"
             style="?android:borderlessButtonStyle"
-            android:onClick="setLockpattern"
+            android:onClick="startLockpattern"
             android:textAppearance="?android:attr/textAppearanceMedium"/>
         <Button
             android:id="@+id/lockpatternNfcButton"
