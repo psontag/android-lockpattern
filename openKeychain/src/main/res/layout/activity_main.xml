@@ -1,0 +1,20 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"
+    android:orientation="vertical">
+
+    <Button
+        android:id="@+id/setMethod"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="set method"
+        android:onClick="selectMethod"/>
+
+    <Button
+        android:id="@+id/enterMethod"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="enter method"/>
+</LinearLayout>
