@@ -537,7 +537,6 @@ public class LockPatternFragment extends Fragment {
         if (lastPattern != null && lastDisplayMode != null
                 && !ACTION_VERIFY_CAPTCHA.equals(fa.getIntent().getAction()))
             mLockPatternView.setPattern(lastDisplayMode, lastPattern);
-        Log.e("HAAAAAAAAAAAAALO", getSelectedMethod());
         /*
          * COMMAND BUTTONS
          */

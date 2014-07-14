@@ -4,7 +4,6 @@ package com.haibison.android.lockpattern;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
 public class MainActivity extends Activity {

@@ -8,28 +8,6 @@
     <FrameLayout
         android:id="@+id/fragmentContainer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        </FrameLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/cancelButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minEms="9"
-            android:text="Cancel"
-            android:onClick="cancel"/>
-        <Button
-            android:id="@+id/nextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minEms="9"
-            android:text="Next"/>
-        </LinearLayout>
+        android:layout_height="wrap_content"/>
 
 </LinearLayout>

@@ -2,43 +2,47 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="16dp"
     tools:context="pSontag.testopenkeychain.SelectMethods">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_marginTop="50dp">
+        android:orientation="vertical">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="10dp"
+            android:padding="8dp"
             android:text="@string/title_unlock_method"
-            android:textSize="32sp"/>
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
         <Button
             android:id="@+id/passwordButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Password"
-            style="?android:borderlessButtonStyle"
-            android:onClick="dosomething"
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
+            android:text="@string/passphrase"
+            android:onClick="passphrase"
+            android:padding="8dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            style="?android:borderlessButtonStyle"/>
         <Button
             android:id="@+id/lockpatternButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Lockpattern"
-            style="?android:borderlessButtonStyle"
+            android:text="@string/lockpattern"
             android:onClick="startLockpattern"
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
+            android:padding="8dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            style="?android:borderlessButtonStyle"/>
         <Button
             android:id="@+id/lockpatternNfcButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Lockpattern + NFC"
-            style="?android:borderlessButtonStyle"
+            android:text="@string/lockpatternNFC"
             android:onClick="writeNFC"
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
+            android:padding="8dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            style="?android:borderlessButtonStyle"/>
     </LinearLayout>
 </FrameLayout>

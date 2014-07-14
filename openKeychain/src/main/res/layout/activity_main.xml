@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="16dp"
     tools:context=".MainActivity"
     android:orientation="vertical">
 
@@ -10,6 +11,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Neue Methode"
+        android:padding="8dp"
+        android:layout_marginBottom="10dp"
         android:onClick="createMethod"/>
 
     <Button
@@ -17,5 +20,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Authentifizierung"
+        android:padding="8dp"
         android:onClick="authenticate"/>
 </LinearLayout>
