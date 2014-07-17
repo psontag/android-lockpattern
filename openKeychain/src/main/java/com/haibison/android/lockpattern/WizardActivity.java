@@ -2,7 +2,6 @@ package com.haibison.android.lockpattern;
 
 import android.app.AlertDialog;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -26,18 +25,19 @@ import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
 
-
 public class WizardActivity extends FragmentActivity implements SelectMethods.OnFragmentInteractionListener,
-        Passphrase.OnFragmentInteractionListener, NFC.OnFragmentInteractionListener{
+        Passphrase.OnFragmentInteractionListener, NFCFragment.OnFragmentInteractionListener{
 
     //contains information about the action to be performed - read or write?
     public String selectedAction;
+    public static char[] pattern;
 
     NfcAdapter adapter;
     PendingIntent pendingIntent;
     IntentFilter writeTagFilters[];
     boolean writeMode;
     Tag mytag;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,8 +49,12 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
         selectedAction = getIntent().getExtras().getString("ACTION");
         SelectMethods selectMethods = new SelectMethods();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.add(R.id.fragmentContainer, selectMethods).addToBackStack(null).commit();
+        transaction.add(R.id.fragmentContainer, selectMethods).commit();
         setContentView(R.layout.activity_wizard);
+
+
+
+
     }
 
 
@@ -64,15 +68,71 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
 
     }
 
+
+
+    public void startLockpattern(View view) {
+        if(getActionBar() != null) {
+            getActionBar().setTitle(R.string.draw_lockpattern);
+        }
+
+        //Creating a new Instance of LockPatternFragment with information about selected method.
+        LockPatternFragment lpf = LockPatternFragment.newInstance(selectedAction);
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragmentContainer, lpf).addToBackStack(null).commit();
+        //Context context = getApplicationContext();
+    }
+
+
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
+    public void cancel(View view) {
+        this.finish();
+    }
+
+    public void savePassphrase(View view){
+        EditText passphrase = (EditText) findViewById(R.id.passphrase);
+        EditText passphraseAgain = (EditText) findViewById(R.id.passphraseAgain);
+        passphrase.setError(null);
+        passphraseAgain.setError(null);
+
+        String pw = passphrase.getText().toString();
+        String pwAgain = passphraseAgain.getText().toString();
+
+        if(!TextUtils.isEmpty(pw)) {
+            if (!TextUtils.isEmpty(pwAgain)) {
+
+                if (pw.equals(pwAgain)) {
+                    // TODO save the pw somewhere
+                    Toast.makeText(this, "passphrase saved", Toast.LENGTH_SHORT).show();
+                    this.finish();
+                } else {
+                    passphrase.setError("passphrase invalid");
+                    passphrase.requestFocus();
+                }
+            } else {
+                passphraseAgain.setError("missing passphrase");
+                passphraseAgain.requestFocus();
+            }
+        } else {
+            passphrase.setError("missing passphrase");
+            passphrase.requestFocus();
+        }
+
+
+    }
+
     public void writeNFC(View view){
-        NFC nfc = new NFC();
+        NFCFragment nfc = new NFCFragment();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragmentContainer, nfc).addToBackStack(null).commit();
         //Zeig,dass du hier bist
-        Context context = getApplicationContext();
 
         adapter = NfcAdapter.getDefaultAdapter(this);
-        pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+        pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getApplication().getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
         IntentFilter tagDetected = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
         tagDetected.addCategory(Intent.CATEGORY_DEFAULT);
         writeTagFilters = new IntentFilter[] { tagDetected };
@@ -123,13 +183,13 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
                     //Toast.makeText(context, "here is no Tag to write on.", Toast.LENGTH_SHORT).show();
                 } else {
                     write("passwort", mytag);
-                    Toast.makeText(context, "write...", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "write...", Toast.LENGTH_SHORT).show();
                 }
             } catch (IOException e) {
-                Toast.makeText(context, "Error! Was the Tag close enough?", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Error! Was the Tag close enough?", Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
             } catch (FormatException e) {
-                Toast.makeText(context, "Error! Was the Tag close enough?", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Error! Was the Tag close enough?", Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -233,60 +293,5 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
                     }
                 });
         alert.show();
-    }
-
-    public void startLockpattern(View view) {
-        if(getActionBar() != null) {
-            getActionBar().setTitle(R.string.draw_lockpattern);
-        }
-
-        //Creating a new Instance of LockPatternFragment with information about selected method.
-        LockPatternFragment lpf = LockPatternFragment.newInstance(selectedAction);
-
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragmentContainer, lpf).addToBackStack(null).commit();
-        //Context context = getApplicationContext();
-    }
-
-
-
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
-    }
-    public void cancel(View view) {
-        this.finish();
-    }
-
-    public void savePassphrase(View view){
-        EditText passphrase = (EditText) findViewById(R.id.passphrase);
-        EditText passphraseAgain = (EditText) findViewById(R.id.passphraseAgain);
-        passphrase.setError(null);
-        passphraseAgain.setError(null);
-
-        String pw = passphrase.getText().toString();
-        String pwAgain = passphraseAgain.getText().toString();
-
-        if(!TextUtils.isEmpty(pw)) {
-            if (!TextUtils.isEmpty(pwAgain)) {
-
-                if (pw.equals(pwAgain)) {
-                    // TODO save the pw somewhere
-                    Toast.makeText(this, "passphrase saved", Toast.LENGTH_SHORT).show();
-                    this.finish();
-                } else {
-                    passphrase.setError("passphrase invalid");
-                    passphrase.requestFocus();
-                }
-            } else {
-                passphraseAgain.setError("missing passphrase");
-                passphraseAgain.requestFocus();
-            }
-        } else {
-            passphrase.setError("missing passphrase");
-            passphrase.requestFocus();
-        }
-
-
     }
 }

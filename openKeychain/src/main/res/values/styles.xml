@@ -16,6 +16,10 @@
 -->
 
 <resources>
+    <!-- openkeycahin -->
+    <style name="SelectableItem">
+        <item name="android:background">@drawable/selector_transparent_button</item>
+    </style>
 
     <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar"/>
 

@@ -16,6 +16,7 @@
 -->
 
 <resources>
+    <color name="bg_gray">#cecbce</color>
 
     <attr name="alp_42447968_color_pattern_path" format="reference" />
 

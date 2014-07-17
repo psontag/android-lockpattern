@@ -17,32 +17,56 @@
             android:padding="8dp"
             android:text="@string/title_unlock_method"
             android:textAppearance="?android:attr/textAppearanceMedium"/>
-        <Button
-            android:id="@+id/passwordButton"
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dip"
+            android:background="?android:attr/listDivider" />
+
+        <TextView
+            android:id="@+id/selectPassphrase"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical"
             android:text="@string/passphrase"
+            android:minHeight="?android:attr/listPreferredItemHeight"
+            android:padding="8dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:clickable="true"
             android:onClick="passphrase"
-            android:padding="8dp"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            style="?android:borderlessButtonStyle"/>
-        <Button
-            android:id="@+id/lockpatternButton"
+            style="@style/SelectableItem"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dip"
+            android:background="?android:attr/listDivider" />
+        <TextView
+            android:id="@+id/selectLockpattern"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical"
             android:text="@string/lockpattern"
-            android:onClick="startLockpattern"
+            android:minHeight="?android:attr/listPreferredItemHeight"
             android:padding="8dp"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            style="?android:borderlessButtonStyle"/>
-        <Button
-            android:id="@+id/lockpatternNfcButton"
+            android:clickable="true"
+            android:onClick="startLockpattern"
+            style="@style/SelectableItem"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dip"
+            android:background="?android:attr/listDivider" />
+        <TextView
+            android:id="@+id/selectLockpatternNFC"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical"
             android:text="@string/lockpatternNFC"
-            android:onClick="writeNFC"
+            android:minHeight="?android:attr/listPreferredItemHeight"
             android:padding="8dp"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            style="?android:borderlessButtonStyle"/>
+            android:clickable="true"
+            android:onClick="writeNFC"
+            style="@style/SelectableItem"/>
+
     </LinearLayout>
 </FrameLayout>

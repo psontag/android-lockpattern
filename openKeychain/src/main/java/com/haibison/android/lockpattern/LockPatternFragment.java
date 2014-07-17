@@ -40,6 +40,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.haibison.android.lockpattern.util.IEncrypter;
 import com.haibison.android.lockpattern.util.InvalidEncrypterException;
@@ -95,27 +96,10 @@ public class LockPatternFragment extends Fragment {
 
     private String selectedAction;
 
-    public static LockPatternFragment newInstance(String method){
-        LockPatternFragment fragment = new LockPatternFragment();
-        Bundle args = new Bundle();
-        args.putString("ACTION", method);
-        fragment.setArguments(args);
-
-        return fragment;
-    }
-
-    public String getSelectedMethod () {
-        return getArguments().getString("ACTION");
-    }
-
-
-
-
-
-
     private static final String CLASSNAME = LockPatternFragment.class.getName();
 
     public static final String ACTION_CREATE_PATTERN = "create";
+
 
     /**
      * Use getActivity() action to compare pattern. You provide the pattern to be
@@ -145,8 +129,7 @@ public class LockPatternFragment extends Fragment {
      * @see #EXTRA_RETRY_COUNT
      * @since v2.4 beta
      */
-    public static final String ACTION_COMPARE_PATTERN = CLASSNAME
-            + ".compare_pattern";
+    public static final String ACTION_COMPARE_PATTERN = "authenticate";//CLASSNAME + ".compare_pattern";
 
     /**
      * Use getActivity() action to let the activity generate a random pattern and ask the
@@ -158,8 +141,7 @@ public class LockPatternFragment extends Fragment {
      *
      * @since v2.7 beta
      */
-    public static final String ACTION_VERIFY_CAPTCHA = CLASSNAME
-            + ".verify_captcha";
+    public static final String ACTION_VERIFY_CAPTCHA = CLASSNAME + ".verify_captcha";
 
     /**
      * If you use {@link #ACTION_COMPARE_PATTERN} and the user fails to "login"
@@ -365,7 +347,7 @@ public class LockPatternFragment extends Fragment {
 
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK
-                && ACTION_COMPARE_PATTERN.equals(fa.getIntent().getAction())) {
+                && ACTION_COMPARE_PATTERN.equals(getSelectedMethod())) {
             /*
              * Use getActivity() hook instead of onBackPressed(), because onBackPressed()
              * is not available in API 4.
@@ -573,7 +555,7 @@ public class LockPatternFragment extends Fragment {
             if (btnOkEnabled != null)
                 mBtnConfirm.setEnabled(btnOkEnabled);
         }// ACTION_CREATE_PATTERN
-        else if (ACTION_COMPARE_PATTERN.equals(fa.getIntent().getAction())) {
+        else if (ACTION_COMPARE_PATTERN.equals(getSelectedMethod())) {
             if (TextUtils.isEmpty(infoText))
                 mTextInfo
                         .setText(R.string.alp_42447968_msg_draw_pattern_to_unlock);
@@ -630,17 +612,21 @@ public class LockPatternFragment extends Fragment {
 
             @Override
             protected Boolean doInBackground(Void... params) {
-                if (ACTION_COMPARE_PATTERN.equals(fa.getIntent().getAction())) {
-                    char[] currentPattern = fa.getIntent().getCharArrayExtra(
-                            EXTRA_PATTERN);
+                if (ACTION_COMPARE_PATTERN.equals(getSelectedMethod())) {
+//                    char[] currentPattern = fa.getIntent().getCharArrayExtra(
+//                            EXTRA_PATTERN);
+
+                    char[] currentPattern = WizardActivity.pattern;
+                    Log.e("currentPattern", "" + currentPattern);
                     if (currentPattern == null)
                         currentPattern = Settings.Security
                                 .getPattern(getActivity());
                     if (currentPattern != null) {
-                        if (mEncrypter != null)
+                        if (mEncrypter != null) {
+                            Log.e("Pattern", "" + currentPattern);
                             return pattern.equals(mEncrypter.decrypt(
                                     getActivity(), currentPattern));
-                        else
+                        } else
                             return Arrays.equals(currentPattern,
                                     LockPatternUtils.patternToSha256(pattern)
                                             .toCharArray());
@@ -657,10 +643,11 @@ public class LockPatternFragment extends Fragment {
             @Override
             protected void onPostExecute(Boolean result) {
                 super.onPostExecute(result);
+                if (result) {
+                    Toast.makeText(getActivity(), "unlocked", Toast.LENGTH_SHORT).show();
 
-                if (result)
                     finishWithResultOk(null);
-                else {
+                }else {
                     mRetryCount++;
                     mIntentResult.putExtra(EXTRA_RETRY_COUNT, mRetryCount);
 
@@ -722,6 +709,9 @@ public class LockPatternFragment extends Fragment {
                         mTextInfo
                                 .setText(R.string.alp_42447968_msg_your_new_unlock_pattern);
                         mBtnConfirm.setEnabled(true);
+                        WizardActivity.pattern = fa.getIntent()
+                                .getCharArrayExtra(EXTRA_PATTERN);
+                        Log.e("Pattern: " , "" + pattern.toString());
                     } else {
                         mTextInfo
                                 .setText(R.string.alp_42447968_msg_redraw_pattern_to_confirm);
@@ -821,7 +811,7 @@ public class LockPatternFragment extends Fragment {
      * {@link #RESULT_FORGOT_PATTERN}).
      */
     private void finishWithNegativeResult(int resultCode) {
-        if (ACTION_COMPARE_PATTERN.equals(fa.getIntent().getAction()))
+        if (ACTION_COMPARE_PATTERN.equals(getSelectedMethod()))
             mIntentResult.putExtra(EXTRA_RETRY_COUNT, mRetryCount);
 
         fa.setResult(resultCode, mIntentResult);
@@ -833,7 +823,7 @@ public class LockPatternFragment extends Fragment {
                 EXTRA_RESULT_RECEIVER);
         if (receiver != null) {
             Bundle resultBundle = null;
-            if (ACTION_COMPARE_PATTERN.equals(fa.getIntent().getAction())) {
+            if (ACTION_COMPARE_PATTERN.equals(getSelectedMethod())) {
                 resultBundle = new Bundle();
                 resultBundle.putInt(EXTRA_RETRY_COUNT, mRetryCount);
             }
@@ -914,7 +904,7 @@ public class LockPatternFragment extends Fragment {
                     mTextInfo
                             .setText(R.string.alp_42447968_msg_redraw_pattern_to_confirm);
             }// ACTION_CREATE_PATTERN
-            else if (ACTION_COMPARE_PATTERN.equals(fa.getIntent().getAction())) {
+            else if (ACTION_COMPARE_PATTERN.equals(getSelectedMethod())) {
                 mLockPatternView.setDisplayMode(DisplayMode.Correct);
                 mTextInfo
                         .setText(R.string.alp_42447968_msg_draw_pattern_to_unlock);
@@ -963,7 +953,7 @@ public class LockPatternFragment extends Fragment {
                     finishWithResultOk(pattern);
                 }
             }// ACTION_CREATE_PATTERN
-            else if (ACTION_COMPARE_PATTERN.equals(fa.getIntent().getAction())) {
+            else if (ACTION_COMPARE_PATTERN.equals(getSelectedMethod())) {
                 /*
                  * We don't need to verify the extra. First, getActivity() button is only
                  * visible if there is getActivity() extra in the intent. Second, it is
@@ -994,5 +984,18 @@ public class LockPatternFragment extends Fragment {
             mLockPatternViewListener.onPatternCleared();
         }// run()
     };// mLockPatternViewReloader
+
+    public static LockPatternFragment newInstance(String method){
+        LockPatternFragment fragment = new LockPatternFragment();
+        Bundle args = new Bundle();
+        args.putString("ACTION", method);
+        fragment.setArguments(args);
+
+        return fragment;
+    }
+
+    public String getSelectedMethod () {
+        return getArguments().getString("ACTION");
+    }
 
 }
