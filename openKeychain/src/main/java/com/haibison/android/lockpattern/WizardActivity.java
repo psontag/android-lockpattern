@@ -51,6 +51,12 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.add(R.id.fragmentContainer, selectMethods).commit();
         setContentView(R.layout.activity_wizard);
+        adapter = NfcAdapter.getDefaultAdapter(this);
+        pendingIntent = PendingIntent.getActivity(this , 0, new Intent(this, WizardActivity.class).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+        IntentFilter tagDetected = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
+        tagDetected.addCategory(Intent.CATEGORY_DEFAULT);
+        writeTagFilters = new IntentFilter[] { tagDetected };
+       //adapter.enableForegroundDispatch(this, pendingIntent, writeTagFilters, null);
 
 
 
@@ -130,12 +136,6 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragmentContainer, nfc).addToBackStack(null).commit();
         //Zeig,dass du hier bist
-
-        adapter = NfcAdapter.getDefaultAdapter(this);
-        pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getApplication().getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
-        IntentFilter tagDetected = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
-        tagDetected.addCategory(Intent.CATEGORY_DEFAULT);
-        writeTagFilters = new IntentFilter[] { tagDetected };
 
         boolean found = false;
         int i = 0;
@@ -294,4 +294,37 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
                 });
         alert.show();
     }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        Alert("Bla");
+        if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(intent.getAction())) {
+            mytag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+            Alert("Found Tag");
+        }
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        WriteModeOff();
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        WriteModeOn();
+    }
+
+    private void WriteModeOn(){
+        writeMode = true;
+        adapter.enableForegroundDispatch(this, pendingIntent, writeTagFilters, null);
+    }
+
+    private void WriteModeOff(){
+        writeMode = false;
+        adapter.disableForegroundDispatch(this);
+    }
+
+
 }
