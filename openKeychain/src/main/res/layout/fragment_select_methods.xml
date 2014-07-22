@@ -65,7 +65,7 @@
             android:padding="8dp"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:clickable="true"
-            android:onClick="writeNFC"
+            android:onClick="NFC"
             style="@style/SelectableItem"/>
 
     </LinearLayout>

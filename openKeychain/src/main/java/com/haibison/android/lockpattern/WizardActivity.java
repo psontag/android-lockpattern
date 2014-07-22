@@ -12,6 +12,7 @@ import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.Ndef;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -32,11 +33,17 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
     public String selectedAction;
     public static char[] pattern;
 
+    //Kann man hier auf die MainActivity drauf zugreifen? redundant
+    public static final String CREATE_METHOD = "create";
+    public static final String AUTHENTICATION = "authenticate";
+
     NfcAdapter adapter;
     PendingIntent pendingIntent;
     IntentFilter writeTagFilters[];
     boolean writeMode;
     Tag mytag;
+    boolean writeNFC = false;
+    boolean readNFC = false;
 
 
     @Override
@@ -58,11 +65,7 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
         writeTagFilters = new IntentFilter[] { tagDetected };
        //adapter.enableForegroundDispatch(this, pendingIntent, writeTagFilters, null);
 
-
-
-
     }
-
 
     public void passphrase(View view){
         if(getActionBar() != null) {
@@ -71,10 +74,7 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
         Passphrase passphrase = new Passphrase();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragmentContainer, passphrase).addToBackStack(null).commit();
-
     }
-
-
 
     public void startLockpattern(View view) {
         if(getActionBar() != null) {
@@ -88,8 +88,6 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
         transaction.replace(R.id.fragmentContainer, lpf).addToBackStack(null).commit();
         //Context context = getApplicationContext();
     }
-
-
 
     @Override
     public void onFragmentInteraction(Uri uri) {
@@ -131,74 +129,69 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
 
     }
 
-    public void writeNFC(View view){
+    public void NFC(View view){
         NFCFragment nfc = new NFCFragment();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragmentContainer, nfc).addToBackStack(null).commit();
-        //Zeig,dass du hier bist
 
-        boolean found = false;
-        int i = 0;
-
-        //read nfc
-        while ((i < 5) && (!found))
-        {
-            i++;
-            try {
-                if(mytag==null){
-                    //return "There is no Tag to read from.";
-
-                    Thread.sleep(500);
-
-                } else {
-                    String pwtag = null;
-                    pwtag = read(mytag);
-                    Alert(pwtag);
-                    /*if(pwtag.equals(params)){
-                        found = true;
-                        return "Matching password!";
-                    }
-                    else {
-                        return "The passwords do not match!";
-                    }*/
-                }
-            } catch (IOException e) {
-                Alert("Error! Was the Tag close enough?");
-                e.printStackTrace();
-            } catch (FormatException e) {
-                Alert("Error! Was the Tag close enough?");
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        //In welchem Modus sind wir? Soll Intent lesen (=authentication) oder schreiben (=create)
+        if (CREATE_METHOD.equals(selectedAction)) {
+            writeNFC = true;
+        } else if (AUTHENTICATION.equals(selectedAction)) {
+            readNFC = true;
         }
+    }
 
-        //write nfc
-        while ((i < 5) && (!found)) {
-            i++;
-            try {
-                if (mytag == null) {
-                    Thread.sleep(500);
-                    //Alert("here is no Tag to write on.");
-                    //Toast.makeText(context, "here is no Tag to write on.", Toast.LENGTH_SHORT).show();
-                } else {
-                    write("passwort", mytag);
-                    Toast.makeText(this, "write...", Toast.LENGTH_SHORT).show();
+    @Override
+    protected void onNewIntent(Intent intent) {
+        if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(intent.getAction())) {
+            mytag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+
+            if (writeNFC && CREATE_METHOD.equals(selectedAction)) {
+                //Schreibe neues Passwort auf NFC Tag
+                try {
+                    if (mytag == null) {
+                        //Alert("here is no Tag to write on.");
+                        //Toast.makeText(context, "here is no Tag to write on.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        write("passwort", mytag);
+                        writeNFC = false;   //einmal schreiben reicht jetzt
+                        Toast.makeText(this, "Successfully written to TAG!", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (IOException e) {
+                    //Toast.makeText(this, "Error! Was the Tag close enough?", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                } catch (FormatException e) {
+                    //Toast.makeText(this, "Error! Was the Tag close enough?", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
                 }
-            } catch (IOException e) {
-                Toast.makeText(this, "Error! Was the Tag close enough?", Toast.LENGTH_SHORT).show();
-                e.printStackTrace();
-            } catch (FormatException e) {
-                Toast.makeText(this, "Error! Was the Tag close enough?", Toast.LENGTH_SHORT).show();
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } else if (readNFC && AUTHENTICATION.equals(selectedAction)) {
+                //Lese Passwort von NFC Tag
+                try {
+                    if(mytag==null){
+                        //return "There is no Tag to read from.";
+                    } else {
+                        String pwtag = null;
+                        pwtag = read(mytag);
+                        if (pwtag.equals("passwort")) {
+                            Toast.makeText(this, "Matching password!", Toast.LENGTH_SHORT).show();
+                            readNFC = false;
+                        } else {
+                            Toast.makeText(this, "The passwords do not match!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                } catch (IOException e) {
+                    Alert("Error! Was the Tag close enough?");
+                    e.printStackTrace();
+                } catch (FormatException e) {
+                    Alert("Error! Was the Tag close enough?");
+                    e.printStackTrace();
+                }
             }
         }
     }
 
     private void write(String text, Tag tag) throws IOException, FormatException {
-
         NdefRecord[] records = { createRecord(text) };
         NdefMessage message = new NdefMessage(records);
         // Get an instance of Ndef for the tag.
@@ -209,7 +202,6 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
         ndef.writeNdefMessage(message);
         // Close the connection
         ndef.close();
-        Toast.makeText(this, "Wrote NFC!", Toast.LENGTH_SHORT).show();
     }
 
     private String read(Tag tag) throws IOException, FormatException {
@@ -233,7 +225,6 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
         // Close the connection
         ndef.close();
         return password;
-
     }
 
     private String readText(NdefRecord record) throws UnsupportedEncodingException {
@@ -296,15 +287,6 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
     }
 
     @Override
-    protected void onNewIntent(Intent intent) {
-        Alert("Bla");
-        if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(intent.getAction())) {
-            mytag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-            Alert("Found Tag");
-        }
-    }
-
-    @Override
     public void onPause(){
         super.onPause();
         WriteModeOff();
@@ -325,6 +307,5 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
         writeMode = false;
         adapter.disableForegroundDispatch(this);
     }
-
 
 }
