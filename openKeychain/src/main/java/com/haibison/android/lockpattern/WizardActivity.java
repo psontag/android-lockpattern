@@ -66,12 +66,16 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
         writeTagFilters = new IntentFilter[] { tagDetected };
         //adapter.enableForegroundDispatch(this, pendingIntent, writeTagFilters, null);
 
+
+
+
     }
 public void noPassphrase(View view){
     //TODO set no passphrase
     Toast.makeText(this, "No passphrase set", Toast.LENGTH_SHORT).show();
     finish();
 }
+
 
     public void passphrase(View view){
         if(getActionBar() != null) {
@@ -80,7 +84,10 @@ public void noPassphrase(View view){
         Passphrase passphrase = new Passphrase();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragmentContainer, passphrase).addToBackStack(null).commit();
+
     }
+
+
 
     public void startLockpattern(View view) {
         if(getActionBar() != null) {
@@ -94,6 +101,8 @@ public void noPassphrase(View view){
         transaction.replace(R.id.fragmentContainer, lpf).addToBackStack(null).commit();
         //Context context = getApplicationContext();
     }
+
+
 
     @Override
     public void onFragmentInteraction(Uri uri) {
@@ -139,6 +148,7 @@ public void noPassphrase(View view){
         NFCFragment nfc = new NFCFragment();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragmentContainer, nfc).addToBackStack(null).commit();
+        //Zeig,dass du hier bist
 
         //In welchem Modus sind wir? Soll Intent lesen (=authentication) oder schreiben (=create)
         if (CREATE_METHOD.equals(selectedAction)) {
@@ -193,11 +203,20 @@ public void noPassphrase(View view){
                     Alert("Error! Was the Tag close enough?");
                     e.printStackTrace();
                 }
+            } catch (IOException e) {
+                Toast.makeText(this, "Error! Was the Tag close enough?", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+            } catch (FormatException e) {
+                Toast.makeText(this, "Error! Was the Tag close enough?", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
 
     private void write(String text, Tag tag) throws IOException, FormatException {
+
         NdefRecord[] records = { createRecord(text) };
         NdefMessage message = new NdefMessage(records);
         // Get an instance of Ndef for the tag.
@@ -208,6 +227,7 @@ public void noPassphrase(View view){
         ndef.writeNdefMessage(message);
         // Close the connection
         ndef.close();
+        Toast.makeText(this, "Wrote NFC!", Toast.LENGTH_SHORT).show();
     }
 
     private String read(Tag tag) throws IOException, FormatException {
@@ -231,6 +251,7 @@ public void noPassphrase(View view){
         // Close the connection
         ndef.close();
         return password;
+
     }
 
     private String readText(NdefRecord record) throws UnsupportedEncodingException {
@@ -313,5 +334,6 @@ public void noPassphrase(View view){
         writeMode = false;
         adapter.disableForegroundDispatch(this);
     }
+
 
 }

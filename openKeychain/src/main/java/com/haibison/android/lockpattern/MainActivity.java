@@ -2,7 +2,9 @@ package com.haibison.android.lockpattern;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.nfc.NfcAdapter;
@@ -18,9 +20,9 @@ public class MainActivity extends Activity {
     NfcAdapter adapter;
     PendingIntent pendingIntent;
     IntentFilter writeTagFilters[];
+    boolean writeMode;
     Tag mytag;
     boolean writeMode;
-
 
 
     @Override
@@ -28,55 +30,47 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         adapter = NfcAdapter.getDefaultAdapter(this);
-        if(adapter==null){
+        if (adapter == null) {
             findViewById(R.id.selectLockpatternNFC).setVisibility(View.GONE);
         }
 
         pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
         IntentFilter tagDetected = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
         tagDetected.addCategory(Intent.CATEGORY_DEFAULT);
-        writeTagFilters = new IntentFilter[] { tagDetected };
+        writeTagFilters = new IntentFilter[]{tagDetected};
     }
 
-    /*@Override
-    protected void onNewIntent(Intent intent) {
-        if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(intent.getAction())) {
-            mytag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-            Alert("Found Tag");
-        }
-    }*/
 
-
-    public void createMethod(View view){
+    public void createMethod(View view) {
         Intent i = new Intent(this, WizardActivity.class);
-        i.putExtra("ACTION", CREATE_METHOD );
+        i.putExtra("ACTION", CREATE_METHOD);
         startActivity(i);
     }
 
     public void authenticate(View view) {
         Intent i = new Intent(this, WizardActivity.class);
-        i.putExtra("ACTION", AUTHENTICATION );
+        i.putExtra("ACTION", AUTHENTICATION);
         startActivity(i);
     }
 
     @Override
-    public void onPause(){
+    public void onPause() {
         super.onPause();
         WriteModeOff();
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
         WriteModeOn();
     }
 
-    private void WriteModeOn(){
+    private void WriteModeOn() {
         writeMode = true;
         adapter.enableForegroundDispatch(this, pendingIntent, writeTagFilters, null);
     }
 
-    private void WriteModeOff(){
+    private void WriteModeOff() {
         writeMode = false;
         adapter.disableForegroundDispatch(this);
     }
