@@ -14,6 +14,7 @@ import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
@@ -23,6 +24,7 @@ import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.security.SecureRandom;
 import java.util.Arrays;
 
 
@@ -32,6 +34,9 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
     //contains information about the action to be performed - read or write?
     public String selectedAction;
     public static char[] pattern;
+
+    //Passwort
+    byte[] output = new byte[8];
 
     //Kann man hier auf die MainActivity drauf zugreifen? redundant
     public static final String CREATE_METHOD = "create";
@@ -140,6 +145,20 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
         } else if (AUTHENTICATION.equals(selectedAction)) {
             readNFC = true;
         }
+
+        if(!adapter.isEnabled()){
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.setTitle("Information");
+            alert.setMessage("Please enable NFC");
+            alert.setPositiveButton("Okay",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            startActivity(new Intent(Settings.ACTION_NFC_SETTINGS));
+                        }
+                    }
+            );
+            alert.show();
+        }
     }
 
     @Override
@@ -154,9 +173,14 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
                         //Alert("here is no Tag to write on.");
                         //Toast.makeText(context, "here is no Tag to write on.", Toast.LENGTH_SHORT).show();
                     } else {
-                        write("passwort", mytag);
+                        write(mytag);
                         writeNFC = false;   //einmal schreiben reicht jetzt
                         Toast.makeText(this, "Successfully written to TAG!", Toast.LENGTH_SHORT).show();
+                        //Gehe zum Lockpattern
+                        FragmentTransaction Transaction = getSupportFragmentManager().beginTransaction();
+                        Transaction.replace(R.id.fragmentContainer, LockPatternFragment.newInstance(selectedAction));
+                        Transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                        Transaction.commit();
                     }
                 } catch (IOException e) {
                     //Toast.makeText(this, "Error! Was the Tag close enough?", Toast.LENGTH_SHORT).show();
@@ -191,8 +215,12 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
         }
     }
 
-    private void write(String text, Tag tag) throws IOException, FormatException {
-        NdefRecord[] records = { createRecord(text) };
+    private void write(Tag tag) throws IOException, FormatException {
+        SecureRandom sr = new SecureRandom();
+        byte[] output = new byte[8];
+        sr.nextBytes(output);
+
+        NdefRecord[] records = { createRecord(output.toString()) };
         NdefMessage message = new NdefMessage(records);
         // Get an instance of Ndef for the tag.
         Ndef ndef = Ndef.get(tag);
