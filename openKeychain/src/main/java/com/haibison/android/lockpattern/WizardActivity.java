@@ -12,7 +12,6 @@ import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.Ndef;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
@@ -68,7 +67,7 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
         IntentFilter tagDetected = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
         tagDetected.addCategory(Intent.CATEGORY_DEFAULT);
         writeTagFilters = new IntentFilter[] { tagDetected };
-       //adapter.enableForegroundDispatch(this, pendingIntent, writeTagFilters, null);
+        //adapter.enableForegroundDispatch(this, pendingIntent, writeTagFilters, null);
 
     }
 

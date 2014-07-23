@@ -989,6 +989,7 @@ public class LockPatternFragment extends Fragment {
         LockPatternFragment fragment = new LockPatternFragment();
         Bundle args = new Bundle();
         args.putString("ACTION", method);
+     //   args.putString();
         fragment.setArguments(args);
 
         return fragment;
