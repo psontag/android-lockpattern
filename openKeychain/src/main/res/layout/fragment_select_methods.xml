@@ -5,6 +5,9 @@
     android:padding="16dp"
     tools:context="pSontag.testopenkeychain.SelectMethods">
 
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -18,6 +21,23 @@
             android:text="@string/title_unlock_method"
             android:textAppearance="?android:attr/textAppearanceMedium"/>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dip"
+            android:background="?android:attr/listDivider" />
+
+        <TextView
+            android:id="@+id/selectNoPassphrase"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:text="@string/noPassphrase"
+            android:minHeight="?android:attr/listPreferredItemHeight"
+            android:padding="8dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:clickable="true"
+            android:onClick="noPassphrase"
+            style="@style/SelectableItem"/>
         <View
             android:layout_width="match_parent"
             android:layout_height="1dip"
@@ -69,4 +89,5 @@
             style="@style/SelectableItem"/>
 
     </LinearLayout>
+    </ScrollView>
 </FrameLayout>

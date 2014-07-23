@@ -2,9 +2,7 @@ package com.haibison.android.lockpattern;
 
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.PendingIntent;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.nfc.NfcAdapter;
@@ -20,8 +18,9 @@ public class MainActivity extends Activity {
     NfcAdapter adapter;
     PendingIntent pendingIntent;
     IntentFilter writeTagFilters[];
-    boolean writeMode;
     Tag mytag;
+    boolean writeMode;
+
 
 
     @Override
@@ -32,19 +31,20 @@ public class MainActivity extends Activity {
         if(adapter==null){
             findViewById(R.id.selectLockpatternNFC).setVisibility(View.GONE);
         }
+
         pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
         IntentFilter tagDetected = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
         tagDetected.addCategory(Intent.CATEGORY_DEFAULT);
         writeTagFilters = new IntentFilter[] { tagDetected };
     }
 
-    @Override
+    /*@Override
     protected void onNewIntent(Intent intent) {
         if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(intent.getAction())) {
             mytag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             Alert("Found Tag");
         }
-    }
+    }*/
 
 
     public void createMethod(View view){
@@ -79,18 +79,5 @@ public class MainActivity extends Activity {
     private void WriteModeOff(){
         writeMode = false;
         adapter.disableForegroundDispatch(this);
-    }
-
-    public void Alert(String message){
-        AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        alert.setTitle("Information");
-        alert.setMessage(message);
-        alert.setPositiveButton("Okay",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                    }
-                });
-        alert.show();
     }
 }
