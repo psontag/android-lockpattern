@@ -22,7 +22,6 @@
     <string name="title_unlock_method">Choose an unlock method.</string>
     <string name="text_passphrase">Enter passphrase twice.</string>
     <string name="passphrase">Passphrase</string>
-    <string name="noPassphrase">No passphrase</string>
     <string name="passphrase_again">Again</string>
     <string name="lockpattern">Lockpattern</string>
     <string name="lockpatternNFC">NFC + Lockpattern</string>
