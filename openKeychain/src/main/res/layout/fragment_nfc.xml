@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:weightSum="1">
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
 
     <TextView
+        android:id="@+id/passphraseText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Please place a NFC tag! We will start writing automatically."
-        android:id="@+id/nfc_textView"
-        android:layout_weight="0.05"
-        android:enabled="true"
-        android:singleLine="false"
-        android:textAlignment="center" />
+        android:padding="8dp"
+        android:layout_gravity="center_vertical"
+        android:text="@string/nfc_text"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_weight="1"/>
 
 </LinearLayout>

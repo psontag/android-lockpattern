@@ -36,7 +36,7 @@
         </activity>
         <activity
             android:name=".WizardActivity"
-            android:label="@string/title_activity_wizard"
+            android:label="@string/unlock_method"
             android:theme="@style/Alp.42447968.Theme.Light" >
         </activity>
 

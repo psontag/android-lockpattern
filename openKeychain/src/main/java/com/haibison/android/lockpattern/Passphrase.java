@@ -7,6 +7,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.TextView;
 
 
 /**
@@ -64,7 +66,24 @@ public class Passphrase extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_passphrase, container, false);
+        View view = inflater.inflate(R.layout.fragment_passphrase, container, false);
+        EditText passphraseAgain = (EditText) view.findViewById(R.id.passphraseAgain);
+        TextView passphraseText = (TextView) view.findViewById(R.id.passphraseText);
+        TextView passphraseTextAgain = (TextView) view.findViewById(R.id.passphraseTextAgain);
+
+        String selectedAction = getActivity().getIntent().getExtras().getString("ACTION");
+        if(selectedAction.equals(MainActivity.AUTHENTICATION)) {
+            passphraseAgain.setVisibility(View.GONE);
+            passphraseTextAgain.setVisibility(View.GONE);
+            passphraseText.setText(R.string.enter_passphrase);
+            getActivity().getActionBar().setTitle(R.string.enter_passphrase);
+        } else if(selectedAction.equals(MainActivity.CREATE_METHOD)){
+            passphraseAgain.setVisibility(View.VISIBLE);
+            passphraseTextAgain.setVisibility(View.VISIBLE);
+            passphraseText.setText(R.string.create_passphrase);
+            getActivity().getActionBar().setTitle(R.string.set_passphrase);
+        }
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

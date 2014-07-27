@@ -19,16 +19,20 @@
 
     <string name="app_name">TestOpenKeychain</string>
     <string name="action_settings">Settings</string>
-    <string name="title_unlock_method">Choose an unlock method.</string>
-    <string name="text_passphrase">Enter passphrase twice.</string>
+    <string name="title_unlock_method">Choose an unlock method</string>
+    <string name="create_passphrase">Enter passphrase twice</string>
+    <string name="enter_passphrase">Enter passphrase</string>
     <string name="passphrase">Passphrase</string>
+    <string name="noPassphrase">No passphrase</string>
     <string name="passphrase_again">Again</string>
     <string name="lockpattern">Lockpattern</string>
     <string name="lockpatternNFC">NFC + Lockpattern</string>
     <string name="unlock_method">Unlock method</string>
     <string name="set_passphrase">Set passphrase</string>
     <string name="draw_lockpattern">Draw lockpattern</string>
-    <string name="title_activity_wizard">WizardActivity</string>
+    <string name="write_nfc">NFC</string>
+    <string name="nfc_text">Please place a NFC tag near your device</string>
+
 
 <!-- lockpattern -->
 

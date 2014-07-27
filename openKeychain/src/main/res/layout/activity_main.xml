@@ -6,20 +6,33 @@
     tools:context=".MainActivity"
     android:orientation="vertical">
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dip"
+        android:background="?android:attr/listDivider" />
     <Button
         android:id="@+id/createMethod"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Neue Methode"
+        android:text="New Method"
         android:padding="8dp"
-        android:layout_marginBottom="10dp"
-        android:onClick="createMethod"/>
+        android:onClick="createMethod"
+        style="?attr/alp_42447968_button_bar_button_style"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dip"
+        android:background="?android:attr/listDivider" />
 
     <Button
         android:id="@+id/authenticate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Authentifizierung"
+        android:text="Authenticate"
         android:padding="8dp"
-        android:onClick="authenticate"/>
+        android:onClick="authenticate"
+        style="?attr/alp_42447968_button_bar_button_style"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dip"
+        android:background="?android:attr/listDivider" />
 </LinearLayout>

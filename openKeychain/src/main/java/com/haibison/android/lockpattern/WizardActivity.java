@@ -12,7 +12,6 @@ import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.Ndef;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
@@ -34,6 +33,7 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
     //contains information about the action to be performed - read or write?
     public String selectedAction;
     public static char[] pattern;
+    private static String passphrase = "";
 
     //Passwort
     byte[] output = new byte[8];
@@ -59,9 +59,11 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
         }
 
         selectedAction = getIntent().getExtras().getString("ACTION");
-        SelectMethods selectMethods = new SelectMethods();
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.add(R.id.fragmentContainer, selectMethods).commit();
+        if(savedInstanceState == null) {
+            SelectMethods selectMethods = new SelectMethods();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.add(R.id.fragmentContainer, selectMethods).commit();
+        }
         setContentView(R.layout.activity_wizard);
         adapter = NfcAdapter.getDefaultAdapter(this);
         pendingIntent = PendingIntent.getActivity(this , 0, new Intent(this, WizardActivity.class).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
@@ -72,10 +74,13 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
 
     }
 
+    public void noPassphrase(View view){
+        passphrase = "";
+        Toast.makeText(this, "no passphrase set", Toast.LENGTH_SHORT).show();
+        this.finish();
+    }
+
     public void passphrase(View view){
-        if(getActionBar() != null) {
-            getActionBar().setTitle(R.string.set_passphrase);
-        }
         Passphrase passphrase = new Passphrase();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragmentContainer, passphrase).addToBackStack(null).commit();
@@ -104,37 +109,49 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
 
     public void savePassphrase(View view){
         EditText passphrase = (EditText) findViewById(R.id.passphrase);
-        EditText passphraseAgain = (EditText) findViewById(R.id.passphraseAgain);
         passphrase.setError(null);
-        passphraseAgain.setError(null);
-
         String pw = passphrase.getText().toString();
-        String pwAgain = passphraseAgain.getText().toString();
+        //check and save passphrase
+        if (selectedAction.equals(MainActivity.CREATE_METHOD)) {
+            EditText passphraseAgain = (EditText) findViewById(R.id.passphraseAgain);
+            passphraseAgain.setError(null);
+            String pwAgain = passphraseAgain.getText().toString();
 
-        if(!TextUtils.isEmpty(pw)) {
-            if (!TextUtils.isEmpty(pwAgain)) {
-
-                if (pw.equals(pwAgain)) {
-                    // TODO save the pw somewhere
-                    Toast.makeText(this, "passphrase saved", Toast.LENGTH_SHORT).show();
-                    this.finish();
+            if (!TextUtils.isEmpty(pw)) {
+                if (!TextUtils.isEmpty(pwAgain)) {
+                    if (pw.equals(pwAgain)) {
+                        this.passphrase = pw;
+                        Toast.makeText(this, "passphrase saved", Toast.LENGTH_SHORT).show();
+                        this.finish();
+                    } else {
+                        passphrase.setError("passphrase invalid");
+                        passphrase.requestFocus();
+                    }
                 } else {
-                    passphrase.setError("passphrase invalid");
-                    passphrase.requestFocus();
+                    passphraseAgain.setError("missing passphrase");
+                    passphraseAgain.requestFocus();
                 }
             } else {
-                passphraseAgain.setError("missing passphrase");
-                passphraseAgain.requestFocus();
+                passphrase.setError("missing passphrase");
+                passphrase.requestFocus();
             }
-        } else {
-            passphrase.setError("missing passphrase");
-            passphrase.requestFocus();
         }
-
-
+        //check for right passphrase
+        if (selectedAction.equals(MainActivity.AUTHENTICATION)){
+            if(pw.equals(this.passphrase)){
+                Toast.makeText(this, "Unlocked", Toast.LENGTH_SHORT).show();
+                this.finish();
+            } else {
+                passphrase.setError("passphrase invalid");
+                passphrase.requestFocus();
+            }
+        }
     }
 
     public void NFC(View view){
+        if(getActionBar() != null) {
+            getActionBar().setTitle(R.string.write_nfc);
+        }
         NFCFragment nfc = new NFCFragment();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragmentContainer, nfc).addToBackStack(null).commit();
@@ -305,7 +322,7 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setTitle("Information");
         alert.setMessage(message);
-        alert.setPositiveButton("Okay",
+        alert.setPositiveButton("Ok",
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
