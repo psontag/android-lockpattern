@@ -35,18 +35,11 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
     public static char[] pattern;
     private static String passphrase = "";
 
-    //Passwort
-    byte[] output = new byte[8];
-
-    //Kann man hier auf die MainActivity drauf zugreifen? redundant
-    public static final String CREATE_METHOD = "create";
-    public static final String AUTHENTICATION = "authenticate";
-
     NfcAdapter adapter;
     PendingIntent pendingIntent;
     IntentFilter writeTagFilters[];
     boolean writeMode;
-    Tag mytag;
+    Tag myTag;
     boolean writeNFC = false;
     boolean readNFC = false;
 
@@ -66,12 +59,12 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
         }
         setContentView(R.layout.activity_wizard);
         adapter = NfcAdapter.getDefaultAdapter(this);
-        pendingIntent = PendingIntent.getActivity(this , 0, new Intent(this, WizardActivity.class).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
-        IntentFilter tagDetected = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
-        tagDetected.addCategory(Intent.CATEGORY_DEFAULT);
-        writeTagFilters = new IntentFilter[] { tagDetected };
-       //adapter.enableForegroundDispatch(this, pendingIntent, writeTagFilters, null);
-
+        if (adapter != null) {
+            pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, WizardActivity.class).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+            IntentFilter tagDetected = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
+            tagDetected.addCategory(Intent.CATEGORY_DEFAULT);
+            writeTagFilters = new IntentFilter[]{tagDetected};
+        }
     }
 
     public void noPassphrase(View view){
@@ -90,13 +83,9 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
         if(getActionBar() != null) {
             getActionBar().setTitle(R.string.draw_lockpattern);
         }
-
-        //Creating a new Instance of LockPatternFragment with information about selected method.
         LockPatternFragment lpf = LockPatternFragment.newInstance(selectedAction);
-
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragmentContainer, lpf).addToBackStack(null).commit();
-        //Context context = getApplicationContext();
     }
 
     @Override
@@ -149,48 +138,42 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
     }
 
     public void NFC(View view){
-        if(getActionBar() != null) {
-            getActionBar().setTitle(R.string.write_nfc);
-        }
-        NFCFragment nfc = new NFCFragment();
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragmentContainer, nfc).addToBackStack(null).commit();
+        if (adapter != null) {
+            if (getActionBar() != null) {
+                getActionBar().setTitle(R.string.write_nfc);
+            }
+            NFCFragment nfc = new NFCFragment();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragmentContainer, nfc).addToBackStack(null).commit();
 
-        //In welchem Modus sind wir? Soll Intent lesen (=authentication) oder schreiben (=create)
-        if (CREATE_METHOD.equals(selectedAction)) {
-            writeNFC = true;
-        } else if (AUTHENTICATION.equals(selectedAction)) {
-            readNFC = true;
-        }
+            //In welchem Modus sind wir? Soll Intent lesen (=authentication) oder schreiben (=create)
+            if (MainActivity.CREATE_METHOD.equals(selectedAction)) {
+                writeNFC = true;
+            } else if (MainActivity.AUTHENTICATION.equals(selectedAction)) {
+                readNFC = true;
+            }
 
-        if(!adapter.isEnabled()){
-            AlertDialog.Builder alert = new AlertDialog.Builder(this);
-            alert.setTitle("Information");
-            alert.setMessage("Please enable NFC");
-            alert.setPositiveButton("Okay",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            startActivity(new Intent(Settings.ACTION_NFC_SETTINGS));
-                        }
-                    }
-            );
-            alert.show();
+            if (!adapter.isEnabled()) {
+                showAlertDialog("Please enable NFC", true);
+            }
+        } else {
+            showAlertDialog("This device is not supporting NFC", false);
         }
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(intent.getAction())) {
-            mytag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+            myTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
 
-            if (writeNFC && CREATE_METHOD.equals(selectedAction)) {
+            if (writeNFC && MainActivity.CREATE_METHOD.equals(selectedAction)) {
                 //Schreibe neues Passwort auf NFC Tag
                 try {
-                    if (mytag == null) {
+                    if (myTag == null) {
                         //Alert("here is no Tag to write on.");
                         //Toast.makeText(context, "here is no Tag to write on.", Toast.LENGTH_SHORT).show();
                     } else {
-                        write(mytag);
+                        write(myTag);
                         writeNFC = false;   //einmal schreiben reicht jetzt
                         Toast.makeText(this, "Successfully written to TAG!", Toast.LENGTH_SHORT).show();
                         //Gehe zum Lockpattern
@@ -206,14 +189,14 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
                     //Toast.makeText(this, "Error! Was the Tag close enough?", Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 }
-            } else if (readNFC && AUTHENTICATION.equals(selectedAction)) {
+            } else if (readNFC && MainActivity.AUTHENTICATION.equals(selectedAction)) {
                 //Lese Passwort von NFC Tag
                 try {
-                    if(mytag==null){
+                    if (myTag == null) {
                         //return "There is no Tag to read from.";
                     } else {
                         String pwtag = null;
-                        pwtag = read(mytag);
+                        pwtag = read(myTag);
                         if (pwtag.equals("passwort")) {
                             Toast.makeText(this, "Matching password!", Toast.LENGTH_SHORT).show();
                             readNFC = false;
@@ -222,10 +205,10 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
                         }
                     }
                 } catch (IOException e) {
-                    Alert("Error! Was the Tag close enough?");
+                    showAlertDialog("Error! Was the Tag close enough?", false);
                     e.printStackTrace();
                 } catch (FormatException e) {
-                    Alert("Error! Was the Tag close enough?");
+                    showAlertDialog("Error! Was the Tag close enough?", false);
                     e.printStackTrace();
                 }
             }
@@ -273,27 +256,11 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
     }
 
     private String readText(NdefRecord record) throws UnsupportedEncodingException {
-        /*
-         * See NFC forum specification for "Text Record Type Definition" at 3.2.1
-         *
-         * http://www.nfc-forum.org/specs/
-         *
-         * bit_7 defines encoding
-         * bit_6 reserved for future use, must be 0
-         * bit_5..0 length of IANA language code
-         */
-
         byte[] payload = record.getPayload();
-
         // Get the Text Encoding
         String textEncoding = ((payload[0] & 128) == 0) ? "UTF-8" : "UTF-16";
-
         // Get the Language Code
         int languageCodeLength = payload[0] & 0063;
-
-        // String languageCode = new String(payload, 1, languageCodeLength, "US-ASCII");
-        // e.g. "en"
-
         // Get the Text
         return new String(payload, languageCodeLength + 1, payload.length - languageCodeLength - 1, textEncoding);
     }
@@ -308,39 +275,47 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
 
         // set status byte (see NDEF spec for actual bits)
         payload[0] = (byte) langLength;
-
         // copy langbytes and textbytes into payload
         System.arraycopy(langBytes, 0, payload, 1,              langLength);
         System.arraycopy(textBytes, 0, payload, 1 + langLength, textLength);
-
-        NdefRecord recordNFC = new NdefRecord(NdefRecord.TNF_WELL_KNOWN,  NdefRecord.RTD_TEXT,  new byte[0], payload);
-
-        return recordNFC;
+        return new NdefRecord(NdefRecord.TNF_WELL_KNOWN, NdefRecord.RTD_TEXT, new byte[0], payload);
     }
 
-    public void Alert(String message){
+    public void showAlertDialog(String message, Boolean nfc) {
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        alert.setTitle("Information");
-        alert.setMessage(message);
-        alert.setPositiveButton("Ok",
+        alert.setTitle("Information").setMessage(message).setPositiveButton("Ok",
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                     }
-                });
+                }
+        );
+        if (nfc) {
+            alert.setNeutralButton("Settings",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            startActivity(new Intent(Settings.ACTION_NFC_SETTINGS));
+                        }
+                    }
+            );
+        }
         alert.show();
     }
 
     @Override
     public void onPause(){
         super.onPause();
-        WriteModeOff();
+        if (adapter != null) {
+            WriteModeOff();
+        }
     }
 
     @Override
     public void onResume(){
         super.onResume();
-        WriteModeOn();
+        if (adapter != null) {
+            WriteModeOn();
+        }
     }
 
     private void WriteModeOn(){
