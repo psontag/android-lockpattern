@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
    Copyright 2012 Hai Bison
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,9 +31,10 @@
     <string name="draw_lockpattern">Draw lockpattern</string>
     <string name="write_nfc">NFC</string>
     <string name="nfc_text">Please place a NFC tag near your device</string>
+    <string name="nfc_wrong_tag">Wrong Tag. Please try again.</string>
 
 
-<!-- lockpattern -->
+    <!-- lockpattern -->
 
     <string name="alp_42447968_cmd_confirm">Confirm</string>
     <string name="alp_42447968_cmd_continue">Continue</string>
@@ -53,6 +53,7 @@
     <string name="alp_42447968_msg_release_finger_when_done">Release finger when done.</string>
     <string name="alp_42447968_msg_try_again">Sorry, try again.</string>
     <string name="alp_42447968_msg_your_new_unlock_pattern">Your new lockpattern.</string>
+    <string name="nfc_picture">nfc_picture</string>
 
     <plurals name="alp_42447968_pmsg_connect_x_dots">
         <item quantity="one">Connect at least %1$d dot.\nTry again…</item>

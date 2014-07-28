@@ -533,7 +533,7 @@ public class LockPatternFragment extends Fragment {
             if (infoText != null)
                 mTextInfo.setText(infoText);
             else
-                mTextInfo
+                mTextInfo  //TODO nfc text glaube ich hier oder so
                         .setText(R.string.alp_42447968_msg_draw_an_unlock_pattern);
 
             /*

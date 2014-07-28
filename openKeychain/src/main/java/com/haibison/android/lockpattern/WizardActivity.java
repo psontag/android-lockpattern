@@ -19,6 +19,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -29,11 +30,13 @@ import java.util.Arrays;
 
 public class WizardActivity extends FragmentActivity implements SelectMethods.OnFragmentInteractionListener,
         Passphrase.OnFragmentInteractionListener, NFCFragment.OnFragmentInteractionListener{
-
-    //contains information about the action to be performed - read or write?
+    //create or authneticate
     public String selectedAction;
+    //for lockpattern
     public static char[] pattern;
     private static String passphrase = "";
+    //nfc string
+    private static byte[] output = new byte[8];
 
     NfcAdapter adapter;
     PendingIntent pendingIntent;
@@ -58,6 +61,7 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
             transaction.add(R.id.fragmentContainer, selectMethods).commit();
         }
         setContentView(R.layout.activity_wizard);
+
         adapter = NfcAdapter.getDefaultAdapter(this);
         if (adapter != null) {
             pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, WizardActivity.class).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
@@ -169,46 +173,40 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
             if (writeNFC && MainActivity.CREATE_METHOD.equals(selectedAction)) {
                 //Schreibe neues Passwort auf NFC Tag
                 try {
-                    if (myTag == null) {
-                        //Alert("here is no Tag to write on.");
-                        //Toast.makeText(context, "here is no Tag to write on.", Toast.LENGTH_SHORT).show();
-                    } else {
+                    if (myTag != null) {
                         write(myTag);
                         writeNFC = false;   //einmal schreiben reicht jetzt
                         Toast.makeText(this, "Successfully written to TAG!", Toast.LENGTH_SHORT).show();
                         //Gehe zum Lockpattern
-                        FragmentTransaction Transaction = getSupportFragmentManager().beginTransaction();
-                        Transaction.replace(R.id.fragmentContainer, LockPatternFragment.newInstance(selectedAction));
-                        Transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                        Transaction.commit();
+                        LockPatternFragment lpf = LockPatternFragment.newInstance(selectedAction);
+                        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                        transaction.replace(R.id.fragmentContainer, lpf).addToBackStack(null).commit();
                     }
                 } catch (IOException e) {
-                    //Toast.makeText(this, "Error! Was the Tag close enough?", Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 } catch (FormatException e) {
-                    //Toast.makeText(this, "Error! Was the Tag close enough?", Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 }
+
             } else if (readNFC && MainActivity.AUTHENTICATION.equals(selectedAction)) {
                 //Lese Passwort von NFC Tag
                 try {
-                    if (myTag == null) {
-                        //return "There is no Tag to read from.";
-                    } else {
-                        String pwtag = null;
-                        pwtag = read(myTag);
-                        if (pwtag.equals("passwort")) {
+                    if (myTag != null) {
+                        String pwtag = read(myTag);
+                        if (output != null && pwtag.equals(output.toString())) {
                             Toast.makeText(this, "Matching password!", Toast.LENGTH_SHORT).show();
+                            LockPatternFragment lpf = LockPatternFragment.newInstance(selectedAction);
+                            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                            transaction.replace(R.id.fragmentContainer, lpf).addToBackStack(null).commit();
                             readNFC = false;
                         } else {
-                            Toast.makeText(this, "The passwords do not match!", Toast.LENGTH_SHORT).show();
+                            TextView nfc = (TextView) findViewById(R.id.nfcText);
+                            nfc.setText(R.string.nfc_wrong_tag);
                         }
                     }
                 } catch (IOException e) {
-                    showAlertDialog("Error! Was the Tag close enough?", false);
                     e.printStackTrace();
                 } catch (FormatException e) {
-                    showAlertDialog("Error! Was the Tag close enough?", false);
                     e.printStackTrace();
                 }
             }
@@ -217,28 +215,21 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
 
     private void write(Tag tag) throws IOException, FormatException {
         SecureRandom sr = new SecureRandom();
-        byte[] output = new byte[8];
+        //  output = new byte[8];
         sr.nextBytes(output);
 
         NdefRecord[] records = { createRecord(output.toString()) };
         NdefMessage message = new NdefMessage(records);
-        // Get an instance of Ndef for the tag.
         Ndef ndef = Ndef.get(tag);
-        // Enable I/O
         ndef.connect();
-        // Write the message
         ndef.writeNdefMessage(message);
-        // Close the connection
         ndef.close();
     }
 
     private String read(Tag tag) throws IOException, FormatException {
         String password = null;
-        // Get an instance of Ndef for the tag.
         Ndef ndef = Ndef.get(tag);
-        // Enable I/O
         ndef.connect();
-        // Read the message
         NdefMessage ndefMessage = ndef.getCachedNdefMessage();
 
         NdefRecord[] records = ndefMessage.getRecords();
@@ -247,21 +238,18 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
                 try {
                     password =  readText(ndefRecord);
                 } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
                 }
             }
         }
-        // Close the connection
         ndef.close();
         return password;
     }
 
     private String readText(NdefRecord record) throws UnsupportedEncodingException {
         byte[] payload = record.getPayload();
-        // Get the Text Encoding
         String textEncoding = ((payload[0] & 128) == 0) ? "UTF-8" : "UTF-16";
-        // Get the Language Code
         int languageCodeLength = payload[0] & 0063;
-        // Get the Text
         return new String(payload, languageCodeLength + 1, payload.length - languageCodeLength - 1, textEncoding);
     }
 
@@ -281,7 +269,7 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
         return new NdefRecord(NdefRecord.TNF_WELL_KNOWN, NdefRecord.RTD_TEXT, new byte[0], payload);
     }
 
-    public void showAlertDialog(String message, Boolean nfc) {
+    public void showAlertDialog(String message, boolean nfc) {
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setTitle("Information").setMessage(message).setPositiveButton("Ok",
                 new DialogInterface.OnClickListener() {
