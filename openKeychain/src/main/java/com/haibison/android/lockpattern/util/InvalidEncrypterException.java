@@ -18,7 +18,7 @@ package com.haibison.android.lockpattern.util;
 
 /**
  * Used to throw exception if given class is not implemented from
- * {@link com.haibison.android.lockpattern.util.IEncrypter}.
+ * {@link IEncrypter}.
  * 
  * @author Hai Bison
  * @since v2 beta

@@ -22,7 +22,7 @@
                 android:padding="8dp"
                 android:layout_gravity="center_vertical"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="@string/create_passphrase"
+                android:text="@string/passphrase"
                 android:layout_weight="1"/>
         </TableRow>
 

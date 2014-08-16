@@ -19,10 +19,8 @@ public class SelectMethods extends Fragment {
      * this fragment using the provided parameters.
      *
      */
-
-
     public SelectMethods() {
-        // Required empty public constructor
+
     }
 
     @Override
@@ -46,10 +44,6 @@ public class SelectMethods extends Fragment {
         return inflater.inflate(R.layout.fragment_select_methods, container, false);
 
     }
-
-
-
-
 
     @Override
     public void onAttach(Activity activity) {
@@ -79,7 +73,6 @@ public class SelectMethods extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
     }
 

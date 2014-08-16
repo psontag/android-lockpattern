@@ -73,7 +73,7 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
 
     public void noPassphrase(View view){
         passphrase = "";
-        Toast.makeText(this, "no passphrase set", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.no_passphrase_set, Toast.LENGTH_SHORT).show();
         this.finish();
     }
 
@@ -113,29 +113,29 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
             if (!TextUtils.isEmpty(pw)) {
                 if (!TextUtils.isEmpty(pwAgain)) {
                     if (pw.equals(pwAgain)) {
-                        this.passphrase = pw;
-                        Toast.makeText(this, "passphrase saved", Toast.LENGTH_SHORT).show();
+                        WizardActivity.passphrase = pw;
+                        Toast.makeText(this, getString(R.string.passphrase_saved), Toast.LENGTH_SHORT).show();
                         this.finish();
                     } else {
-                        passphrase.setError("passphrase invalid");
+                        passphrase.setError(getString(R.string.passphrase_invalid));
                         passphrase.requestFocus();
                     }
                 } else {
-                    passphraseAgain.setError("missing passphrase");
+                    passphraseAgain.setError(getString(R.string.missing_passphrase));
                     passphraseAgain.requestFocus();
                 }
             } else {
-                passphrase.setError("missing passphrase");
+                passphrase.setError(getString(R.string.missing_passphrase));
                 passphrase.requestFocus();
             }
         }
         //check for right passphrase
         if (selectedAction.equals(MainActivity.AUTHENTICATION)){
-            if(pw.equals(this.passphrase)){
-                Toast.makeText(this, "Unlocked", Toast.LENGTH_SHORT).show();
+            if(pw.equals(WizardActivity.passphrase)){
+                Toast.makeText(this, getString(R.string.unlocked), Toast.LENGTH_SHORT).show();
                 this.finish();
             } else {
-                passphrase.setError("passphrase invalid");
+                passphrase.setError(getString(R.string.passphrase_invalid));
                 passphrase.requestFocus();
             }
         }
@@ -144,13 +144,13 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
     public void NFC(View view){
         if (adapter != null) {
             if (getActionBar() != null) {
-                getActionBar().setTitle(R.string.write_nfc);
+                getActionBar().setTitle(R.string.nfc_title);
             }
             NFCFragment nfc = new NFCFragment();
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.fragmentContainer, nfc).addToBackStack(null).commit();
 
-            //In welchem Modus sind wir? Soll Intent lesen (=authentication) oder schreiben (=create)
+            //if you want to create a new method or just authenticate
             if (MainActivity.CREATE_METHOD.equals(selectedAction)) {
                 writeNFC = true;
             } else if (MainActivity.AUTHENTICATION.equals(selectedAction)) {
@@ -171,13 +171,13 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
             myTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
 
             if (writeNFC && MainActivity.CREATE_METHOD.equals(selectedAction)) {
-                //Schreibe neues Passwort auf NFC Tag
+                //write new password on NFC tag
                 try {
                     if (myTag != null) {
                         write(myTag);
-                        writeNFC = false;   //einmal schreiben reicht jetzt
+                        writeNFC = false;   //just write once
                         Toast.makeText(this, "Successfully written to TAG!", Toast.LENGTH_SHORT).show();
-                        //Gehe zum Lockpattern
+                        //advance to lockpattern
                         LockPatternFragment lpf = LockPatternFragment.newInstance(selectedAction);
                         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                         transaction.replace(R.id.fragmentContainer, lpf).addToBackStack(null).commit();
@@ -189,7 +189,7 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
                 }
 
             } else if (readNFC && MainActivity.AUTHENTICATION.equals(selectedAction)) {
-                //Lese Passwort von NFC Tag
+                //read pw from NFC tag
                 try {
                     if (myTag != null) {
                         String pwtag = read(myTag);
@@ -215,9 +215,7 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
 
     private void write(Tag tag) throws IOException, FormatException {
         SecureRandom sr = new SecureRandom();
-        //  output = new byte[8];
         sr.nextBytes(output);
-
         NdefRecord[] records = { createRecord(output.toString()) };
         NdefMessage message = new NdefMessage(records);
         Ndef ndef = Ndef.get(tag);

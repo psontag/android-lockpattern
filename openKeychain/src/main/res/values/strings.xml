@@ -19,19 +19,24 @@
     <string name="app_name">TestOpenKeychain</string>
     <string name="action_settings">Settings</string>
     <string name="title_unlock_method">Choose an unlock method</string>
-    <string name="create_passphrase">Enter passphrase twice</string>
+    <string name="enter_passphrase_twice">Enter passphrase twice</string>
     <string name="enter_passphrase">Enter passphrase</string>
     <string name="passphrase">Passphrase</string>
     <string name="noPassphrase">No passphrase</string>
+    <string name="no_passphrase_set">No passphrase set</string>
+    <string name="passphrase_saved">Passphrase saved</string>
+    <string name="passphrase_invalid">Passphrase invalid</string>
+    <string name="missing_passphrase">Missing passphrase</string>
     <string name="passphrase_again">Again</string>
     <string name="lockpattern">Lockpattern</string>
     <string name="lockpatternNFC">NFC + Lockpattern</string>
     <string name="unlock_method">Unlock method</string>
     <string name="set_passphrase">Set passphrase</string>
     <string name="draw_lockpattern">Draw lockpattern</string>
-    <string name="write_nfc">NFC</string>
+    <string name="nfc_title">NFC</string>
     <string name="nfc_text">Please place a NFC tag near your device</string>
     <string name="nfc_wrong_tag">Wrong Tag. Please try again.</string>
+    <string name="unlocked">Unlocked</string>
 
 
     <!-- lockpattern -->

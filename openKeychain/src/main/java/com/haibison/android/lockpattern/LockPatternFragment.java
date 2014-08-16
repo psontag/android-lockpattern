@@ -22,23 +22,17 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -94,22 +88,17 @@ import static com.haibison.android.lockpattern.util.Settings.Security.METADATA_E
  */
 public class LockPatternFragment extends Fragment {
 
-    private String selectedAction;
-
     private static final String CLASSNAME = LockPatternFragment.class.getName();
 
     public static final String ACTION_CREATE_PATTERN = "create";
 
-
     /**
-     * Use getActivity() action to compare pattern. You provide the pattern to be
+     * Use getSelectedMethod() to compare pattern. You provide the pattern to be
      * compared with {@link #EXTRA_PATTERN}.
      * <p/>
      * If you enabled feature auto-save pattern before (with
      * {@link com.haibison.android.lockpattern.util.Settings.Security#setAutoSavePattern(android.content.Context, boolean)} ),
-     * then you don't need {@link #EXTRA_PATTERN} at getActivity() time. But if you use
-     * getActivity() extra, its priority is higher than the one stored in shared
-     * preferences.
+     * then you don't need {@link #EXTRA_PATTERN} at getActivity() time.
      * <p/>
      * You can use {@link #EXTRA_PENDING_INTENT_FORGOT_PATTERN} to help your
      * users in case they forgot the patterns.
@@ -255,7 +244,6 @@ public class LockPatternFragment extends Fragment {
      *
      * @see #ACTION_COMPARE_PATTERN
      * @since v2.8 beta
-     * @author Thanks to Yan Cheng Cheok for his idea.
      */
     public static final String EXTRA_PENDING_INTENT_FORGOT_PATTERN = CLASSNAME
             + ".pending_intent_forgot_pattern";
@@ -267,7 +255,7 @@ public class LockPatternFragment extends Fragment {
      * @author Hai Bison
      */
     private static enum ButtonOkCommand {
-        CONTINUE, FORGOT_PATTERN, DONE
+        CONTINUE,DONE
     }// ButtonOkCommand
 
     /**
@@ -289,14 +277,11 @@ public class LockPatternFragment extends Fragment {
      */
     private TextView mTextInfo;
     private LockPatternView mLockPatternView;
-    private View mFooter;
-    private Button mBtnCancel;
     private Button mBtnConfirm;
 
     /*
      * FRAGMENTS
      */
-    private RelativeLayout rl;
     private FragmentActivity fa;
 
     /**
@@ -304,12 +289,7 @@ public class LockPatternFragment extends Fragment {
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if (BuildConfig.DEBUG)
-            Log.d(CLASSNAME, "ClassName = " + CLASSNAME);
 
-        //Put the information about selected action into private String
-        if(getSelectedMethod() != null)
-            selectedAction = getArguments().getString("method");
         fa = getActivity();
 
         /*
@@ -329,50 +309,7 @@ public class LockPatternFragment extends Fragment {
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
-        if (BuildConfig.DEBUG)
-            Log.d(CLASSNAME, "onConfigurationChanged()");
         super.onConfigurationChanged(newConfig);
-    }
-
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK
-                && ACTION_COMPARE_PATTERN.equals(getSelectedMethod())) {
-            /*
-             * Use getActivity() hook instead of onBackPressed(), because onBackPressed()
-             * is not available in API 4.
-             */
-            finishWithNegativeResult(fa.RESULT_CANCELED);
-            return true;
-        }
-        return fa.onKeyDown(keyCode, event);
-    }
-
-
-    public boolean onTouchEvent(MotionEvent event) {
-        /*
-         * Support canceling dialog on touching outside in APIs < 11.
-         *
-         * getActivity() piece of code is copied from android.view.Window. You can find
-         * it by searching for methods shouldCloseOnTouch() and isOutOfBounds().
-         */
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB
-                && event.getAction() == MotionEvent.ACTION_DOWN
-                && fa.getWindow().peekDecorView() != null) {
-            final int x = (int) event.getX();
-            final int y = (int) event.getY();
-            final int slop = ViewConfiguration.get(getActivity())
-                    .getScaledWindowTouchSlop();
-            final View decorView = fa.getWindow().getDecorView();
-            boolean isOutOfBounds = (x < -slop) || (y < -slop)
-                    || (x > (decorView.getWidth() + slop))
-                    || (y > (decorView.getHeight() + slop));
-            if (isOutOfBounds) {
-                finishWithNegativeResult(fa.RESULT_CANCELED);
-                return true;
-            }
-        }
-
-        return fa.onTouchEvent(event);
     }
 
     /**
@@ -445,6 +382,7 @@ public class LockPatternFragment extends Fragment {
      * Initializes UI...
      */
     private void initContentView(View view) {
+
         /*
          * Save all controls' state to restore later.
          */
@@ -457,6 +395,9 @@ public class LockPatternFragment extends Fragment {
                 .getPattern() : null;
 
         UI.adjustDialogSizeForLargeScreens(fa.getWindow());
+
+        View mFooter;
+        Button mBtnCancel;
 
         mTextInfo = (TextView) view.findViewById(R.id.alp_42447968_textview_info);
         mLockPatternView = (LockPatternView) view.findViewById(R.id.alp_42447968_view_lock_pattern);
@@ -599,13 +540,11 @@ public class LockPatternFragment extends Fragment {
             protected Boolean doInBackground(Void... params) {
                 if (ACTION_COMPARE_PATTERN.equals(getSelectedMethod())) {
                     char[] currentPattern = WizardActivity.pattern;
-                    Log.e("currentPattern", "" + currentPattern);
                     if (currentPattern == null)
                         currentPattern = Settings.Security
                                 .getPattern(getActivity());
                     if (currentPattern != null) {
                         if (mEncrypter != null) {
-                            Log.e("Pattern", "" + currentPattern);
                             return pattern.equals(mEncrypter.decrypt(
                                     getActivity(), currentPattern));
                         } else
@@ -691,7 +630,6 @@ public class LockPatternFragment extends Fragment {
                         mBtnConfirm.setEnabled(true);
                         WizardActivity.pattern = fa.getIntent()
                                 .getCharArrayExtra(EXTRA_PATTERN);
-                        Log.e("Pattern: " , "" + pattern.toString());
                     } else {
                         mTextInfo
                                 .setText(R.string.alp_42447968_msg_redraw_pattern_to_confirm);
@@ -777,7 +715,7 @@ public class LockPatternFragment extends Fragment {
             try {
                 pi.send(getActivity(), fa.RESULT_OK, mIntentResult);
             } catch (Throwable t) {
-                Log.e(CLASSNAME, "Error sending PendingIntent: " + pi, t);
+                t.printStackTrace();
             }
         }
 
@@ -818,7 +756,7 @@ public class LockPatternFragment extends Fragment {
             try {
                 pi.send(getActivity(), resultCode, mIntentResult);
             } catch (Throwable t) {
-                Log.e(CLASSNAME, "Error sending PendingIntent: " + pi, t);
+                t.printStackTrace();
             }
         }
 
@@ -938,13 +876,13 @@ public class LockPatternFragment extends Fragment {
                  * the responsibility of the caller to make sure the extra is
                  * good.
                  */
-                PendingIntent pi = null;
+                PendingIntent pi;
                 try {
                     pi = fa.getIntent().getParcelableExtra(
                             EXTRA_PENDING_INTENT_FORGOT_PATTERN);
                     pi.send();
                 } catch (Throwable t) {
-                    Log.e(CLASSNAME, "Error sending pending intent: " + pi, t);
+                    t.printStackTrace();
                 }
                 finishWithNegativeResult(RESULT_FORGOT_PATTERN);
             }
