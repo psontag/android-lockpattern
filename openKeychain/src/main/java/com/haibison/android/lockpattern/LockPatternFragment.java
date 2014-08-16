@@ -299,8 +299,6 @@ public class LockPatternFragment extends Fragment {
     private RelativeLayout rl;
     private FragmentActivity fa;
 
-//
-
     /**
      * Called when the activity is first created.
      */
@@ -312,38 +310,29 @@ public class LockPatternFragment extends Fragment {
         //Put the information about selected action into private String
         if(getSelectedMethod() != null)
             selectedAction = getArguments().getString("method");
-
-
         fa = getActivity();
+
         /*
          * EXTRA_THEME
          */
-
         if (fa.getIntent().hasExtra(EXTRA_THEME))
             fa.setTheme(fa.getIntent().getIntExtra(EXTRA_THEME,
                     R.style.Alp_42447968_Theme_Dark));
-
-//        super.onCreate(savedInstanceState);
-
-         View view = inflater.inflate(R.layout.alp_42447968_lock_pattern_activity, container, false);
-//        rl = (RelativeLayout) inflater.inflate(R.layout.alp_42447968_lock_pattern_fragment, container, false);
+        View view = inflater.inflate(R.layout.alp_42447968_lock_pattern_activity, container, false);
         loadSettings();
 
         mIntentResult = new Intent();
         fa.setResult(fa.RESULT_CANCELED, mIntentResult);
         initContentView(view);
-
         return view;
-    }// onCreate()
+    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         if (BuildConfig.DEBUG)
             Log.d(CLASSNAME, "onConfigurationChanged()");
         super.onConfigurationChanged(newConfig);
-
-        //initContentView(view);
-    }// onConfigurationChanged()
+    }
 
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK
@@ -355,9 +344,8 @@ public class LockPatternFragment extends Fragment {
             finishWithNegativeResult(fa.RESULT_CANCELED);
             return true;
         }
-
         return fa.onKeyDown(keyCode, event);
-    }// onKeyDown()
+    }
 
 
     public boolean onTouchEvent(MotionEvent event) {
@@ -382,10 +370,10 @@ public class LockPatternFragment extends Fragment {
                 finishWithNegativeResult(fa.RESULT_CANCELED);
                 return true;
             }
-        }// if
+        }
 
         return fa.onTouchEvent(event);
-    }// onTouchEvent()
+    }
 
     /**
      * Loads settings, either from manifest or {@link com.haibison.android.lockpattern.util.Settings}.
@@ -451,7 +439,7 @@ public class LockPatternFragment extends Fragment {
                 throw new InvalidEncrypterException();
             }
         }
-    }// loadSettings()
+    }
 
     /**
      * Initializes UI...
@@ -468,7 +456,6 @@ public class LockPatternFragment extends Fragment {
         List<Cell> lastPattern = mLockPatternView != null ? mLockPatternView
                 .getPattern() : null;
 
-        //fa.setContentView(R.layout.alp_42447968_lock_pattern_activity);
         UI.adjustDialogSizeForLargeScreens(fa.getWindow());
 
         mTextInfo = (TextView) view.findViewById(R.id.alp_42447968_textview_info);
@@ -494,7 +481,7 @@ public class LockPatternFragment extends Fragment {
                 mLockPatternView.setLayoutParams(lp);
 
                 break;
-            }// LARGE / XLARGE
+            }
         }
 
         /*
@@ -549,12 +536,11 @@ public class LockPatternFragment extends Fragment {
                     mBtnConfirm.setText(R.string.alp_42447968_cmd_confirm);
                     break;
                 default:
-
                     break;
             }
             if (btnOkEnabled != null)
                 mBtnConfirm.setEnabled(btnOkEnabled);
-        }// ACTION_CREATE_PATTERN
+        }
         else if (ACTION_COMPARE_PATTERN.equals(getSelectedMethod())) {
             if (TextUtils.isEmpty(infoText))
                 mTextInfo
@@ -567,7 +553,7 @@ public class LockPatternFragment extends Fragment {
                 mBtnConfirm.setEnabled(true);
                 mFooter.setVisibility(View.VISIBLE);
             }
-        }// ACTION_COMPARE_PATTERN
+        }
         else if (ACTION_VERIFY_CAPTCHA.equals(fa.getIntent().getAction())) {
             mTextInfo
                     .setText(R.string.alp_42447968_msg_redraw_pattern_to_confirm);
@@ -588,8 +574,8 @@ public class LockPatternFragment extends Fragment {
                                 .genCaptchaPattern(mCaptchaWiredDots));
 
             mLockPatternView.setPattern(DisplayMode.Animate, pattern);
-        }// ACTION_VERIFY_CAPTCHA
-    }// initContentView()
+        }
+    }
 
     /**
      * Compares {@code pattern} to the given pattern (
@@ -607,15 +593,11 @@ public class LockPatternFragment extends Fragment {
         /*
          * Use a LoadingDialog because decrypting pattern might take time...
          */
-
         new LoadingDialog<Void, Void, Boolean>(getActivity(), false) {
 
             @Override
             protected Boolean doInBackground(Void... params) {
                 if (ACTION_COMPARE_PATTERN.equals(getSelectedMethod())) {
-//                    char[] currentPattern = fa.getIntent().getCharArrayExtra(
-//                            EXTRA_PATTERN);
-
                     char[] currentPattern = WizardActivity.pattern;
                     Log.e("currentPattern", "" + currentPattern);
                     if (currentPattern == null)
@@ -631,21 +613,19 @@ public class LockPatternFragment extends Fragment {
                                     LockPatternUtils.patternToSha256(pattern)
                                             .toCharArray());
                     }
-                }// ACTION_COMPARE_PATTERN
+                }
                 else if (ACTION_VERIFY_CAPTCHA.equals(fa.getIntent().getAction())) {
                     return pattern.equals(fa.getIntent()
                             .getParcelableArrayListExtra(EXTRA_PATTERN));
-                }// ACTION_VERIFY_CAPTCHA
-
+                }
                 return false;
-            }// doInBackground()
+            }
 
             @Override
             protected void onPostExecute(Boolean result) {
                 super.onPostExecute(result);
                 if (result) {
                     Toast.makeText(getActivity(), "unlocked", Toast.LENGTH_SHORT).show();
-
                     finishWithResultOk(null);
                 }else {
                     mRetryCount++;
@@ -660,10 +640,10 @@ public class LockPatternFragment extends Fragment {
                                 DELAY_TIME_TO_RELOAD_LOCK_PATTERN_VIEW);
                     }
                 }
-            }// onPostExecute()
+            }
 
         }.execute();
-    }// doComparePattern()
+    }
 
     /**
      * Checks and creates the pattern.
@@ -699,7 +679,7 @@ public class LockPatternFragment extends Fragment {
                                 fa.getIntent().getCharArrayExtra(EXTRA_PATTERN),
                                 LockPatternUtils.patternToSha256(pattern)
                                         .toCharArray());
-                }// doInBackground()
+                }
 
                 @Override
                 protected void onPostExecute(Boolean result) {
@@ -720,8 +700,7 @@ public class LockPatternFragment extends Fragment {
                         mLockPatternView.postDelayed(mLockPatternViewReloader,
                                 DELAY_TIME_TO_RELOAD_LOCK_PATTERN_VIEW);
                     }
-                }// onPostExecute()
-
+                }
             }.execute();
         } else {
             /*
@@ -735,7 +714,7 @@ public class LockPatternFragment extends Fragment {
                             getActivity(), pattern)
                             : LockPatternUtils.patternToSha256(pattern)
                             .toCharArray();
-                }// onCancel()
+                }
 
                 @Override
                 protected void onPostExecute(char[] result) {
@@ -745,11 +724,11 @@ public class LockPatternFragment extends Fragment {
                     mTextInfo
                             .setText(R.string.alp_42447968_msg_pattern_recorded);
                     mBtnConfirm.setEnabled(true);
-                }// onPostExecute()
+                }
 
             }.execute();
         }
-    }// doCheckAndCreatePattern()
+    }
 
     /**
      * Finishes activity with {@link android.app.Activity#RESULT_OK}.
@@ -803,7 +782,7 @@ public class LockPatternFragment extends Fragment {
         }
 
         fa.finish();
-    }// finishWithResultOk()
+    }
 
     /**
      * Finishes the activity with negative result (
@@ -844,7 +823,7 @@ public class LockPatternFragment extends Fragment {
         }
 
         fa.finish();
-    }// finishWithNegativeResult()
+    }
 
     /*
      * LISTENERS
@@ -863,31 +842,31 @@ public class LockPatternFragment extends Fragment {
                 mBtnConfirm.setEnabled(false);
                 if (mBtnOkCmd == ButtonOkCommand.CONTINUE)
                     fa.getIntent().removeExtra(EXTRA_PATTERN);
-            }// ACTION_CREATE_PATTERN
+            }
             else if (ACTION_COMPARE_PATTERN.equals(getSelectedMethod())) {
                 mTextInfo
                         .setText(R.string.alp_42447968_msg_draw_pattern_to_unlock);
-            }// ACTION_COMPARE_PATTERN
+            }
             else if (ACTION_VERIFY_CAPTCHA.equals(getSelectedMethod())) {
                 mTextInfo
                         .setText(R.string.alp_42447968_msg_redraw_pattern_to_confirm);
-            }// ACTION_VERIFY_CAPTCHA
-        }// onPatternStart()
+            }
+        }
 
         @Override
         public void onPatternDetected(List<Cell> pattern) {
             if (ACTION_CREATE_PATTERN.equals(getSelectedMethod())) {
                 doCheckAndCreatePattern(pattern);
-            }// ACTION_CREATE_PATTERN
+            }
             else if (ACTION_COMPARE_PATTERN.equals(getSelectedMethod())) {
                 doComparePattern(pattern);
-            }// ACTION_COMPARE_PATTERN
+            }
             else if (ACTION_VERIFY_CAPTCHA.equals(getSelectedMethod())) {
                 if (!DisplayMode.Animate.equals(mLockPatternView
                         .getDisplayMode()))
                     doComparePattern(pattern);
-            }// ACTION_VERIFY_CAPTCHA
-        }// onPatternDetected()
+            }
+        }
 
         @Override
         public void onPatternCleared() {
@@ -903,34 +882,33 @@ public class LockPatternFragment extends Fragment {
                 } else
                     mTextInfo
                             .setText(R.string.alp_42447968_msg_redraw_pattern_to_confirm);
-            }// ACTION_CREATE_PATTERN
+            }
             else if (ACTION_COMPARE_PATTERN.equals(getSelectedMethod())) {
                 mLockPatternView.setDisplayMode(DisplayMode.Correct);
                 mTextInfo
                         .setText(R.string.alp_42447968_msg_draw_pattern_to_unlock);
-            }// ACTION_COMPARE_PATTERN
+            }
             else if (ACTION_VERIFY_CAPTCHA.equals(fa.getIntent().getAction())) {
                 mTextInfo
                         .setText(R.string.alp_42447968_msg_redraw_pattern_to_confirm);
                 List<Cell> pattern = fa.getIntent().getParcelableArrayListExtra(
                         EXTRA_PATTERN);
                 mLockPatternView.setPattern(DisplayMode.Animate, pattern);
-            }// ACTION_VERIFY_CAPTCHA
-        }// onPatternCleared()
+            }
+        }
 
         @Override
         public void onPatternCellAdded(List<Cell> pattern) {
-            // TODO Auto-generated method stub
-        }// onPatternCellAdded()
-    };// mLockPatternViewListener
+        }
+    };
 
     private final View.OnClickListener mBtnCancelOnClickListener = new View.OnClickListener() {
 
         @Override
         public void onClick(View v) {
             finishWithNegativeResult(fa.RESULT_CANCELED);
-        }// onClick()
-    };// mBtnCancelOnClickListener
+        }
+    };
 
     private final View.OnClickListener mBtnConfirmOnClickListener = new View.OnClickListener() {
 
@@ -952,7 +930,7 @@ public class LockPatternFragment extends Fragment {
                                 pattern);
                     finishWithResultOk(pattern);
                 }
-            }// ACTION_CREATE_PATTERN
+            }
             else if (ACTION_COMPARE_PATTERN.equals(getSelectedMethod())) {
                 /*
                  * We don't need to verify the extra. First, getActivity() button is only
@@ -969,9 +947,9 @@ public class LockPatternFragment extends Fragment {
                     Log.e(CLASSNAME, "Error sending pending intent: " + pi, t);
                 }
                 finishWithNegativeResult(RESULT_FORGOT_PATTERN);
-            }// ACTION_COMPARE_PATTERN
-        }// onClick()
-    };// mBtnConfirmOnClickListener
+            }
+        }
+    };
 
     /**
      * getActivity() reloads the {@link #mLockPatternView} after a wrong pattern.
@@ -982,20 +960,27 @@ public class LockPatternFragment extends Fragment {
         public void run() {
             mLockPatternView.clearPattern();
             mLockPatternViewListener.onPatternCleared();
-        }// run()
-    };// mLockPatternViewReloader
+        }
+    };
 
+    /**
+     * Fragment constructor allowing to add a bundle with all necessary information to the fragment
+     * @param method contains information about which method to choose (set
+     * @return LockPatternFragment with bundle
+     */
     public static LockPatternFragment newInstance(String method){
         LockPatternFragment fragment = new LockPatternFragment();
         Bundle args = new Bundle();
         args.putString("ACTION", method);
         fragment.setArguments(args);
-
         return fragment;
     }
 
-    public String getSelectedMethod () {
+    /**
+     * Getter for the method string saved in fragment arguments
+     * @return String telling which method was selected
+     */
+     public String getSelectedMethod () {
         return getArguments().getString("ACTION");
     }
-
 }
