@@ -30,7 +30,7 @@ import java.util.Arrays;
 
 public class WizardActivity extends FragmentActivity implements SelectMethods.OnFragmentInteractionListener,
         Passphrase.OnFragmentInteractionListener, NFCFragment.OnFragmentInteractionListener{
-    //create or authneticate
+    //create or authenticate
     public String selectedAction;
     //for lockpattern
     public static char[] pattern;
@@ -158,10 +158,10 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
             }
 
             if (!adapter.isEnabled()) {
-                showAlertDialog("Please enable NFC", true);
+                showAlertDialog(getString(R.string.enable_nfc), true);
             }
         } else {
-            showAlertDialog("This device is not supporting NFC", false);
+            showAlertDialog(getString(R.string.no_nfc_support), false);
         }
     }
 
@@ -176,7 +176,7 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
                     if (myTag != null) {
                         write(myTag);
                         writeNFC = false;   //just write once
-                        Toast.makeText(this, "Successfully written to TAG!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, R.string.nfc_write_succesful, Toast.LENGTH_SHORT).show();
                         //advance to lockpattern
                         LockPatternFragment lpf = LockPatternFragment.newInstance(selectedAction);
                         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -194,7 +194,7 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
                     if (myTag != null) {
                         String pwtag = read(myTag);
                         if (output != null && pwtag.equals(output.toString())) {
-                            Toast.makeText(this, "Matching password!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, R.string.passphrases_match + "!", Toast.LENGTH_SHORT).show();
                             LockPatternFragment lpf = LockPatternFragment.newInstance(selectedAction);
                             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                             transaction.replace(R.id.fragmentContainer, lpf).addToBackStack(null).commit();
@@ -277,7 +277,7 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
                 }
         );
         if (nfc) {
-            alert.setNeutralButton("Settings",
+            alert.setNeutralButton(R.string.action_settings,
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialogInterface, int i) {
                             startActivity(new Intent(Settings.ACTION_NFC_SETTINGS));
