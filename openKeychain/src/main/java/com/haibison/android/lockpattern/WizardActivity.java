@@ -192,14 +192,17 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
                 //read pw from NFC tag
                 try {
                     if (myTag != null) {
+                        //if tag detected, read tag
                         String pwtag = read(myTag);
                         if (output != null && pwtag.equals(output.toString())) {
+                            //passwort matches, go to next view
                             Toast.makeText(this, "Matching password!", Toast.LENGTH_SHORT).show();
                             LockPatternFragment lpf = LockPatternFragment.newInstance(selectedAction);
                             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                             transaction.replace(R.id.fragmentContainer, lpf).addToBackStack(null).commit();
-                            readNFC = false;
+                            readNFC = false;    //just once
                         } else {
+                            //passwort doesnt match
                             TextView nfc = (TextView) findViewById(R.id.nfcText);
                             nfc.setText(R.string.nfc_wrong_tag);
                         }
@@ -213,7 +216,9 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
         }
     }
 
+
     private void write(Tag tag) throws IOException, FormatException {
+        //generate new random key and write them on the tag
         SecureRandom sr = new SecureRandom();
         sr.nextBytes(output);
         NdefRecord[] records = { createRecord(output.toString()) };
@@ -224,7 +229,9 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
         ndef.close();
     }
 
+
     private String read(Tag tag) throws IOException, FormatException {
+        //read string from tag
         String password = null;
         Ndef ndef = Ndef.get(tag);
         ndef.connect();
@@ -245,6 +252,7 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
     }
 
     private String readText(NdefRecord record) throws UnsupportedEncodingException {
+        //low-level method for reading nfc
         byte[] payload = record.getPayload();
         String textEncoding = ((payload[0] & 128) == 0) ? "UTF-8" : "UTF-16";
         int languageCodeLength = payload[0] & 0063;
@@ -252,6 +260,7 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
     }
 
     private NdefRecord createRecord(String text) throws UnsupportedEncodingException {
+        //low-level method for writing nfc
         String lang       = "en";
         byte[] textBytes  = text.getBytes();
         byte[] langBytes  = lang.getBytes("US-ASCII");
@@ -268,6 +277,7 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
     }
 
     public void showAlertDialog(String message, boolean nfc) {
+        //This method shows an AlertDialog
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setTitle("Information").setMessage(message).setPositiveButton("Ok",
                 new DialogInterface.OnClickListener() {
@@ -277,6 +287,7 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
                 }
         );
         if (nfc) {
+            //direct the user to the nfc settings to activate nfc
             alert.setNeutralButton("Settings",
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -290,6 +301,7 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
 
     @Override
     public void onPause(){
+        //pause this app and free nfc intent
         super.onPause();
         if (adapter != null) {
             WriteModeOff();
@@ -298,6 +310,7 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
 
     @Override
     public void onResume(){
+        //resume this app and get nfc intent
         super.onResume();
         if (adapter != null) {
             WriteModeOn();
@@ -305,11 +318,13 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
     }
 
     private void WriteModeOn(){
+        //enable nfc for this view
         writeMode = true;
         adapter.enableForegroundDispatch(this, pendingIntent, writeTagFilters, null);
     }
 
     private void WriteModeOff(){
+        //disable nfc for this view
         writeMode = false;
         adapter.disableForegroundDispatch(this);
     }
