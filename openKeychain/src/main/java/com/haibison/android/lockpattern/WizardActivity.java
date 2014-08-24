@@ -195,12 +195,10 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
                         //if tag detected, read tag
                         String pwtag = read(myTag);
                         if (output != null && pwtag.equals(output.toString())) {
-<<<<<<< HEAD
+
                             //passwort matches, go to next view
-                            Toast.makeText(this, "Matching password!", Toast.LENGTH_SHORT).show();
-=======
                             Toast.makeText(this, R.string.passphrases_match + "!", Toast.LENGTH_SHORT).show();
->>>>>>> origin/master
+
                             LockPatternFragment lpf = LockPatternFragment.newInstance(selectedAction);
                             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                             transaction.replace(R.id.fragmentContainer, lpf).addToBackStack(null).commit();
@@ -291,12 +289,8 @@ public class WizardActivity extends FragmentActivity implements SelectMethods.On
                 }
         );
         if (nfc) {
-<<<<<<< HEAD
-            //direct the user to the nfc settings to activate nfc
-            alert.setNeutralButton("Settings",
-=======
+
             alert.setNeutralButton(R.string.action_settings,
->>>>>>> origin/master
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialogInterface, int i) {
                             startActivity(new Intent(Settings.ACTION_NFC_SETTINGS));
